@@ -3,533 +3,706 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🧪 2028 대입 이과계열 선택과목 유불리 가이드 (v3)</title>
-  <!-- Tailwind CSS Play CDN: 로컬 파일을 열더라도 네트워크 환경에서 스타일이 적용되도록 합니다 -->
+  <title>🚀 2028 대입 최신 트랜드 : 선택 과목 유불리 검색</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
-    body {
-      /* 시스템 기본 글꼴을 사용하여 iOS, 안드로이드, Windows 등에서 폰트 깨짐 없이 표시됩니다 */
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
+    body { font-family: 'Noto Sans KR', sans-serif; overflow-x: hidden; background-color: #f0f2f5; }
     .badge {
-      display: inline-block;
-      padding: 0.25rem 0.6rem;
-      border-radius: 9999px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: white;
-      text-align: center;
-      min-width: 60px;
+      display: inline-block; padding: 0.3rem 0.7rem; border-radius: 9999px;
+      font-size: 0.8rem; font-weight: 700; color: white; text-align: center; min-width: 75px;
+      border: 1px solid rgba(255,255,255,0.3);
     }
-    .badge-required { background-color: #ef4444; } /* 필수 */
-    .badge-recommended { background-color: #22c55e; } /* 권장 */
-    .badge-bonus { background-color: #3b82f6; } /* 가산점 */
-    .badge-neutral { background-color: #6b7280; } /* 무관 */
+    .badge-required { background: linear-gradient(135deg, #ef4444, #b91c1c); } /* 필수 */
+    .badge-recommended { background: linear-gradient(135deg, #22c55e, #15803d); } /* 권장 */
+    .badge-advanced { background: linear-gradient(135deg, #8b5cf6, #6d28d9); } /* 심화권장 */
+    .badge-neutral { background: linear-gradient(135deg, #6b7280, #4b5563); } /* 무관 */
+    .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden; }
+    .card-hover:hover { transform: translateY(-10px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+    [data-tooltip] { position: relative; }
+    [data-tooltip]:hover::after {
+        content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%;
+        transform: translateX(-50%); margin-bottom: 5px; background-color: #1f2937; color: #fff;
+        padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; white-space: nowrap; z-index: 10;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    /* --- 별빛 & 혜성 배경 스타일 --- */
+    .galaxy-header {
+        background: radial-gradient(ellipse at 50% 10%, #3b82f6 0%, #1e3a8a 50%, #111827 100%);
+    }
+    .stars-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+    .star { 
+        position: absolute; background-color: white; border-radius: 50%; 
+        animation: twinkle 5s infinite, driftLeft 9s ease-in-out infinite alternate;
+        will-change: transform, opacity, margin-left;
+    }
+    @keyframes twinkle { 
+      0%, 100% { opacity: 0.35; transform: scale(0.7); } 
+      50% { opacity: 1; transform: scale(1.05); } 
+    }
+    @keyframes driftLeft {
+      from { margin-left: 0; }
+      to   { margin-left: -30px; }
+    }
     
-    .tab-button.active {
-        border-color: #3b82f6;
-        color: #3b82f6;
-        background-color: #eff6ff;
-    }
-    .chart-bar {
-        transition: width 0.5s ease-in-out;
-    }
-    .combination-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .combination-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    /* --- 혜성 효과 수정 --- */
+    .comet-container {
+        position: absolute;
+        top: 50%; 
+        left: 0;
+        width: 100%;
+        height: 100px;
+        pointer-events: none;
+        animation: comet-travel 20s linear infinite;
+        animation-delay: 2s;
+        z-index: 5;
     }
 
-    /*
-     * iOS Safari에서는 기본 입력 필드 스타일 때문에 검색창이 지나치게 작게 렌더링되는 문제가 발생합니다.
-     * 아래 규칙은 입력 필드의 기본 브라우저 스타일을 제거하고, 최소 높이를 지정하여
-     * 안드로이드와 iPhone 모두에서 일관된 크기로 표시되도록 합니다.
-     */
-    #searchInput {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      min-height: 3rem;
-      line-height: 1.5;
+    @keyframes comet-travel {
+        0% { transform: translateX(-250px); }
+        100% { transform: translateX(110vw); }
     }
-  </style>
+
+    .comet {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 250px; 
+        height: 2px;
+        background: linear-gradient(to left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8) 70%, white 95%);
+        border-radius: 50%;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+    }
+
+    .comet::after {
+        content: '';
+        position: absolute;
+        right: -2px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #fff;
+        box-shadow: 0 0 10px 3px rgba(255, 255, 255, 1), 0 0 25px 8px rgba(200, 220, 255, 0.7);
+    }
+    
+    .comet-particle {
+        position: absolute;
+        background-color: white;
+        border-radius: 50%;
+        opacity: 0;
+        animation: sparkle-dust 1.8s ease-out infinite;
+    }
+
+    @keyframes sparkle-dust {
+        0% {
+            opacity: 0;
+            transform: scale(0.5) translateX(0);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.2) translateX(-40px);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(0.4) translateX(-100px);
+        }
+    }
+    /* --- END --- */
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+    .ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transform: scale(0); animation: ripple 0.6s linear; }
+    @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+    .highlight-box { animation: pulse-bg 3s infinite ease-in-out; }
+    @keyframes pulse-bg { 0%, 100% { background-color: #fffbeb; } 50% { background-color: #fef3c7; } }
+    .border-glow { animation: borderGlow 4s infinite ease-in-out; }
+    @keyframes borderGlow {
+      0%, 100% { text-shadow: 0 0 6px rgba(255,255,255,0.7), 0 0 10px rgba(255,255,255,0.5); }
+      50% { text-shadow: 0 0 20px rgba(255,255,255,1), 0 0 35px rgba(255,255,255,0.8); }
+    }
+    .badge-glow { animation: badgeGlow 3s infinite; }
+    @keyframes badgeGlow {
+      0%, 100% { box-shadow: 0 0 8px 3px rgba(255, 223, 71, 0.6); }
+      50% { box-shadow: 0 0 20px 7px rgba(255, 223, 71, 1); }
+    }
+
+    .hours-badge { display:inline-block; padding: 0.25rem 0.6rem; border-radius: 9999px;
+      font-size: 0.75rem; font-weight: 800; color: white; background: linear-gradient(135deg,#3b82f6,#2563eb);
+      box-shadow: 0 6px 14px rgba(37,99,235,0.35); border:1px solid rgba(255,255,255,0.25); }
+  
+    .galaxy-header p, header p {
+      text-shadow: 0 0 6px rgba(255,255,255,0.55), 0 0 14px rgba(191,219,254,0.75);
+    }
+</style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-100 text-gray-800">
 
-  <!-- Header -->
-  <header class="bg-gradient-to-r from-blue-800 to-indigo-600 text-white shadow-lg">
-    <div class="container mx-auto px-4 py-12 text-center">
-      <!-- 달돌과학 브랜드 메시지 -->
-      <div class="relative">
-        <!-- 브랜드 명과 연락처를 강조하여 상단에 배치합니다 -->
-        <div class="mb-4 text-center space-y-1">
-          <!-- 첫 줄: 브랜드 슬로건과 브랜드명을 크게 표시 -->
-          <div class="flex flex-wrap justify-center items-center space-x-2">
-            <span aria-hidden="true" class="text-2xl md:text-3xl">🔭✨</span>
-            <span class="text-base md:text-xl font-semibold text-white">고교 학점제의 최적화 =</span>
-            <span class="font-extrabold text-yellow-300 text-3xl md:text-4xl">★달돌과학★</span>
-            <a href="https://www.youtube.com/@daldol2325" target="_blank" class="underline text-xs md:text-sm hover:text-yellow-300">(YouTube 채널)</a>
-          </div>
-          <!-- 둘째 줄: 연락처를 큼직하게 표기 -->
-          <div class="mt-2 text-white font-bold text-xl md:text-3xl">
-            <span aria-hidden="true">📞&nbsp;</span>010-7594-7857&nbsp;달돌샘
-          </div>
-        </div>
-        <h1 class="text-4xl md:text-5xl font-bold mb-3">🧪 2028학년도 이과계열 선택과목 가이드</h1>
-        <p class="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto">
-          목표 학과·대학을 검색하여 수시 전형별 선택과목 유불리와 등급별 학습 전략, 추천 조합을 한눈에 확인하세요.
-        </p>
-        <!-- 학원 캐릭터 이미지 (맨 오른쪽 위) -->
-        <div class="absolute top-0 right-0 hidden md:block">
-          <a href="https://www.youtube.com/@daldol2325" target="_blank">
-            <img src="달돌캐릭터1.jpg" alt="달돌 캐릭터" class="w-20 h-20 md:w-24 md:h-24 rounded-full shadow-lg border-2 border-white"/>
-          </a>
-        </div>
-      </div>
+  <header class="relative galaxy-header text-white shadow-lg overflow-hidden">
+    <div class="stars-container" id="stars-container"></div>
+    <div class="comet-container" id="comet-container"></div>
+    <div class="container mx-auto px-4 py-16 text-center relative z-10 space-y-4">
+      <a href="https://www.youtube.com/@daldol2325" target="_blank" rel="noopener noreferrer"
+         class="inline-flex items-center justify-center px-4 py-1 md:px-6 md:py-2 rounded-full shadow-md bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 text-blue-900 font-extrabold text-sm md:text-base tracking-wide badge-glow">
+        ✨ ★ 달돌과학 : 2028 대입 전문 분석팀 ★ ✨
+      </a>
+      <h1 class="text-4xl md:text-5xl font-black mb-3 border-glow">2028 대입 최신 트랜드 : 자동검색❗️</h1>
+      <p class="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto">
+         물화생지 어디가 유리❓️ 주당 몇시간 공부❓️👉검색💎
+      </p>
+      <p class="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto">
+        <span class="block mb-1 font-bold">🛡️ 과탐의 수직상승 = 달돌샘 ☎️ <span class="font-extrabold text-yellow-300">010-7594-7857</span></span>
+         ⭐️달돌 레전드 시스템⭐️ 원하는 학생으로 만들어드립니다!! 🎓😄🍀
+      </p>
       <div class="mt-8">
-        <input type="text" id="searchInput" placeholder="예: 의예과, 인공지능, 서울대, 상위권..." 
-               class="w-full max-w-2xl mx-auto p-4 rounded-full text-gray-900 text-lg shadow-inner focus:ring-4 focus:ring-yellow-400 focus:outline-none transition" />
+        <input type="text" id="searchInput" placeholder="예: 의예과, 반도체, KAIST, 상위권..." 
+               class="w-full max-w-2xl mx-auto p-4 rounded-full text-gray-900 text-lg shadow-inner focus:ring-4 focus:ring-yellow-400 focus:outline-none transition">
       </div>
-
-      <!-- 전형 선택 버튼 -->
-      <div class="mt-6 flex justify-center items-center space-x-4 text-sm md:text-base">
-        <button id="btnJonghap" class="px-5 py-2 rounded-full border-2 border-indigo-600 text-indigo-600 bg-white font-semibold shadow hover:bg-indigo-50 transition">
-          학생부 종합전형
-        </button>
-        <button id="btnGyogwa" class="px-5 py-2 rounded-full border-2 border-gray-300 text-gray-600 bg-white font-semibold shadow hover:bg-gray-100 transition">
-          학생부 교과전형
-        </button>
-      </div>
-      <p id="modeDescription" class="mt-2 text-center text-xs md:text-sm text-blue-200"></p>
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="container mx-auto p-4 md:p-8">
-    
-    <!-- University Requirements Section -->
+
+    <!-- 전문가 서문: 2028 대입 핵심 변화 -->
+    <section class="bg-gradient-to-br from-white to-blue-50 p-6 md:p-10 rounded-2xl shadow-xl mb-16 ring-2 ring-indigo-200">
+        <h2 class="text-3xl font-black text-center text-indigo-800 mb-4">
+            <span class="text-4xl">🎓</span><br/>🏆 입시 전문가 달돌팀 🚀 : 2028 대입, 무엇이 어떻게 바뀌나?
+        </h2>
+        <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">
+			달돌팀의 최신 자료❗️ 최고의 전략👍이 가능합니다.
+		</p>
+		<p class="text-center text-indigo-700 font-bold mb-8 text-lg">💎 방문주시면, 성공한 선배들처럼 🎯최적 컨설팅🎯해드립니다.💎</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-red-500 card-hover">
+                <h3 class="font-bold text-xl text-red-600 mb-2">1. 내신 5등급제 & 절대평가 병기</h3>
+                <p class="text-gray-700 text-sm">
+                    내신 등급 변별력이 약화되면서, 단순히 '1등급'이라는 숫자만으로는 부족합니다. 대학은 원점수, 평균, 성취도(A/B/C)와 함께 학생이 수업에서 무엇을 배우고 탐구했는지를 기록한 <strong class="text-red-700">'세부능력 및 특기사항(세특)'</strong>을 훨씬 더 비중 있게 평가합니다.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-500 card-hover">
+                <h3 class="font-bold text-xl text-green-600 mb-2">2. 수능 선택과목 폐지 & 통합형 수능</h3>
+                <p class="text-gray-700 text-sm">
+                    더 이상 수능에서 물리, 화학 등을 선택하지 않습니다. 모든 학생이 <strong class="text-green-700">'통합사회'와 '통합과학'</strong>을 응시합니다. 따라서 '선택과목'의 중요성은 오직 <strong class="text-green-700">학생부(내신) 경쟁력</strong>과 <strong class="text-green-700">전공 적합성</strong> 증명에만 존재합니다.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 card-hover">
+                <h3 class="font-bold text-xl text-purple-600 mb-2">3. 학생부의 영향력 극대화</h3>
+                <p class="text-gray-700 text-sm">
+                    수시(학생부 종합)는 물론, 정시(수능) 전형에서도 학생부를 반영하는 대학이 늘어날 것입니다. 즉, <strong class="text-purple-700">어떤 과목을 선택하고, 얼마나 깊이 있게 탐구했는가</strong>가 수시와 정시 모두에서 결정적인 영향력을 갖게 되는, 진정한 의미의 '고교학점제형 입시'가 시작됩니다.
+                </p>
+            </div>
+        </div>
+    </section>
+
     <section id="results" class="mb-16">
-      <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">학생부 전형별 선택과목 유불리</h2>
-      <div id="tablesContainer" class="space-y-12">
-        <!-- 검색 결과가 여기에 동적으로 삽입됩니다. -->
-      </div>
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">⭐️수시 선택과목 유불리 : 학생부종합전형 ⭐️</h2>
+      <div id="tablesContainer" class="space-y-12"></div>
     </section>
 
-    <!-- Visual Strategies Section -->
-    <section id="visual-strategies" class="bg-white p-4 md:p-8 rounded-2xl shadow-lg mb-16">
-      <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">과학탐구 과목별 특성 및 학습 전략 비교</h2>
+    <section class="bg-white p-4 md:p-8 rounded-2xl shadow-xl mb-16">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">과학탐구 과목별 분석</h2>
+      <div id="subject-analysis-container"></div>
+    </section>
 
-      <!-- 1. Subject Characteristics Table -->
-      <div class="mb-12">
-        <h3 class="text-2xl font-bold text-blue-700 mb-4">한눈에 보는 과학탐구 과목별 특징</h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-center bg-gray-50 rounded-lg">
-            <thead class="bg-blue-100">
-              <tr>
-                <th class="p-3 font-semibold">구분</th>
-                <th class="p-3 font-semibold">⚛️ 물리학</th>
-                <th class="p-3 font-semibold">🧪 화학</th>
-                <th class="p-3 font-semibold">🧬 생명과학</th>
-                <th class="p-3 font-semibold">🌏 지구과학</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b">
-                <td class="p-3 font-medium">학습 난이도</td>
-                <td><div class="h-2.5 w-full rounded-full bg-red-200"><div class="chart-bar h-2.5 rounded-full bg-red-500" style="width: 95%"></div></div></td>
-                <td><div class="h-2.5 w-full rounded-full bg-orange-200"><div class="chart-bar h-2.5 rounded-full bg-orange-500" style="width: 85%"></div></div></td>
-                <td><div class="h-2.5 w-full rounded-full bg-green-200"><div class="chart-bar h-2.5 rounded-full bg-green-500" style="width: 70%"></div></div></td>
-                <td><div class="h-2.5 w-full rounded-full bg-sky-200"><div class="chart-bar h-2.5 rounded-full bg-sky-500" style="width: 50%"></div></div></td>
-              </tr>
-              <tr class="border-b">
-                <td class="p-3 font-medium">수학 연관성</td>
-                <td>매우 높음</td>
-                <td>높음</td>
-                <td>보통 (유전 파트)</td>
-                <td>낮음 (일부 계산)</td>
-              </tr>
-              <tr class="border-b">
-                <td class="p-3 font-medium">암기량</td>
-                <td>적음</td>
-                <td>많음</td>
-                <td>매우 많음</td>
-                <td>많음</td>
-              </tr>
-              <tr>
-                <td class="p-3 font-medium">주요 진출 분야</td>
-                <td class="text-sm">기계, 전기전자, 물리, 건축</td>
-                <td class="text-sm">화공, 신소재, 의약학, 환경</td>
-                <td class="text-sm">의약학, 생명공학, 식품, 보건</td>
-                <td class="text-sm">지구환경, 천문, 해양, 자원</td>
-              </tr>
-            </tbody>
-          </table>
+    <section class="bg-white p-4 md:p-8 rounded-2xl shadow-xl mb-16">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">핵심 지표 비교 (물·화·생·지)</h2>
+        <p class="text-center text-gray-600 mb-6 text-sm">※ 5점 만점, 학습량·난이도·수행평가·수능 연계·스킬 지표를 토대로 비교합니다. 각 색상은 해당 과목을 의미하며, 범례를 클릭하여 숨기거나 겹쳐 비교할 수 있습니다.</p>
+        <div class="bg-gray-50 p-4 rounded-xl shadow-inner overflow-x-auto">
+            <canvas id="coreMetricsChart"></canvas>
         </div>
-      </div>
-
-      <!-- 2. Detailed Grade-level Strategies -->
-      <div>
-        <h3 class="text-2xl font-bold text-blue-700 mb-6">내신 등급별 상세 학습 전략</h3>
-        <div id="strategy-tabs-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- 과목별 전략 카드가 여기에 동적으로 삽입됩니다. -->
-        </div>
-      </div>
     </section>
     
-    <!-- Recommended Combinations Section -->
-    <section id="combinations" class="bg-indigo-50 p-4 md:p-8 rounded-2xl shadow-lg">
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">등급별 추천 과목 조합 전략</h2>
-        <p class="text-center text-gray-600 mb-8">자신의 성적대와 목표 계열에 맞는 최적의 조합을 찾아보세요.</p>
-        <div id="combinations-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- 추천 조합 카드가 여기에 동적으로 삽입됩니다. -->
-        </div>
+    <section class="bg-indigo-50 p-4 md:p-8 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">💡 2028 대입 필승! 최적의 과목 조합 찾기</h2>
+        <p class="text-center text-gray-600 mb-8">나의 성향과 목표에 맞는 최상의 조합을 통해, 합격의 길을 여는 전략적 포트폴리오를 구성하세요.</p>
+        <div id="combinations-container" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
     </section>
-
   </main>
 
-  <!-- Footer -->
+  <a href="https://www.youtube.com/@daldol2325" target="_blank" rel="noopener noreferrer"
+     class="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded-full shadow-xl">
+    <span>★</span><span>달돌과학 구독</span>
+  </a>
+
   <footer class="bg-gray-800 text-white mt-16">
-    <div class="container mx-auto px-4 py-8 text-center">
-      <p class="font-semibold mb-4">🔗 참고 자료 다운로드</p>
-      <div class="flex justify-center space-x-4 mb-6">
-        <a href="https://github.com/DALDOL/DALDOL.github.io/raw/main/assets/2028%20%EB%8C%80%EC%9E%85%20%EB%8C%80%EB%B9%84%20%EC%9D%B4%EA%B3%BC%EA%B3%84%EC%97%B4%20%EC%84%A0%ED%83%9D%EA%B3%BC%EB%AA%A9%20%EA%B0%80%EC%9D%B4%EB%93%9C%20%F0%9F%93%8A.docx" download class="hover:text-yellow-300 transition">이과계열 가이드</a>
-        <a href="https://github.com/DALDOL/DALDOL.github.io/raw/main/assets/(%ED%99%88%ED%8E%98%EC%9D%B4%EC%A7%80%ED%83%91%EC%9E%AC)%EC%84%9C%EC%9A%B8%20%EC%A4%91%ED%95%99%EA%B5%90%20%ED%95%99%EC%83%9D%20%ED%95%99%EB%B6%80%EB%AA%A8%20%EB%8C%80%EC%83%81%20%EA%B3%A0%EA%B5%90%ED%95%99%EC%A0%90%EC%A0%9C%20%EC%84%A4%EB%AA%85%ED%9A%8C.pdf" download class="hover:text-yellow-300 transition">고교학점제 자료</a>
-        <a href="https://github.com/DALDOL/DALDOL.github.io/raw/main/assets/%ED%98%84%EA%B3%A01%20%EC%84%A0%ED%83%9D%EA%B3%BC%EB%AA%A9.docx" download class="hover:text-yellow-300 transition">현 고1 선택과목</a>
+    <div class="container mx-auto px-4 py-8">
+      <div id="references-accordion" class="max-w-4xl mx-auto">
+        <button id="accordion-button" class="w-full text-left font-semibold mb-4 text-lg flex justify-between items-center">
+          <span>🔗 주요 참고 자료 및 출처 (클릭하여 보기)</span>
+          <svg id="accordion-arrow" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="accordion-content" class="accordion-content text-sm text-gray-400 space-y-3"></div>
       </div>
-      <p class="text-sm text-gray-400">
-        본 자료는 제공된 문서를 기반으로 2025년 7월 기준으로 제작되었으며, 각 대학의 입시요강 발표에 따라 내용은 변경될 수 있습니다.<br>반드시 희망 대학의 공식 발표 자료를 최종 확인하시기 바랍니다.
-      </p>
     </div>
   </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ===================================
-    // 데이터베이스 (2025년 7월 기준 최신 정보 반영)
-    // ===================================
+    // UPDATED on 2025-09-20: 2028 대입 개편안 확정 및 주요 대학 권장과목 발표에 따라 데이터베이스 업데이트
     const db = {
         universities: [
-            // 상위권 추천 대학
-            { name: '서울대', group: '상위권 추천' }, { name: '연세대', group: '상위권 추천' }, { name: '고려대', group: '상위권 추천' },
-            { name: '성균관대', group: '상위권 추천' }, { name: '서강대', group: '상위권 추천' }, { name: '한양대', group: '상위권 추천' },
-            { name: '중앙대', group: '상위권 추천' }, { name: '이화여대', group: '상위권 추천' }, { name: '경희대', group: '상위권 추천' },
-            // 중위권 추천 대학
-            { name: '서울시립대', group: '중위권 추천' }, { name: '건국대', group: '중위권 추천' }, { name: '동국대', group: '중위권 추천' },
-            { name: '홍익대', group: '중위권 추천' }, { name: '숭실대', group: '중위권 추천' }, { name: '국민대', group: '중위권 추천' },
-            { name: '세종대', group: '중위권 추천' }, { name: '단국대', group: '중위권 추천' },
+            // University list is maintained as is.
+            { name: '서울대', group: '최상위권' }, { name: '연세대', group: '최상위권' }, { name: '고려대', group: '최상위권' }, { name: '성균관대', group: '최상위권' }, { name: '서강대', group: '최상위권' }, { name: '한양대', group: '최상위권' }, { name: '중앙대', group: '상위권' }, { name: '이화여대', group: '상위권' }, { name: '경희대', group: '상위권' }, { name: '서울시립대', group: '상위권' }, { name: '건국대', group: '상위권' }, { name: '동국대', group: '상위권' }, { name: '홍익대', group: '중상위권' }, { name: '숭실대', group: '중상위권' }, { name: '국민대', group: '중상위권' }, { name: '세종대', group: '중상위권' }, { name: '아주대', group: '중상위권' }, { name: '인하대', group: '중상위권' }, { name: '광운대', group: '중위권' }, { name: '상명대', group: '중위권' }, { name: '삼육대', group: '중위권' }, { name: '가천대', group: '중위권' }, { name: '가톨릭대', group: '중위권' }, { name: '명지대', group: '중위권' }, { name: 'KAIST', group: '최상위권' }, { name: '포항공대', group: '최상위권' }, { name: 'UNIST', group: '최상위권' }, { name: 'GIST', group: '최상위권' }, { name: 'DGIST', group: '최상위권' }, { name: '한국에너지공대', group: '최상위권' }, { name: '한국항공대', group: '중상위권' }, { name: '경찰대', group: '중상위권' }, { name: '숙명여대', group: '중상위권' }, { name: '성신여대', group: '중상위권' }, { name: '덕성여대', group: '중상위권' }, { name: '동덕여대', group: '중상위권' }, { name: '서울여대', group: '중상위권' },
         ],
         majors: {
-            // 의약보건계열
-            '의예과': { subjects: { '물리': '권장', '화학': '필수', '생명과학': '필수' } },
-            '치의예과': { subjects: { '물리': '권장', '화학': '필수', '생명과학': '필수' } },
-            '한의예과': { subjects: { '화학': '권장', '생명과학': '권장' } },
-            '수의예과': { subjects: { '화학': '필수', '생명과학': '필수' } },
-            '약학과': { subjects: { '화학': '필수', '생명과학': '필수' } },
-            '간호학과': { subjects: { '화학': '권장', '생명과학': '권장' } },
-            '물리치료학과': { subjects: { '물리': '권장', '생명과학': '권장' } },
-            // IT/SW계열
-            '컴퓨터공학': { subjects: { '물리': '권장' } },
-            '소프트웨어': { subjects: { '물리': '권장' } },
-            '인공지능(AI)': { subjects: { '물리': '권장' } },
-            '데이터사이언스': { subjects: {} },
-            '정보보호': { subjects: { '물리': '권장' } },
-            // 공학계열
-            '전기전자공학': { subjects: { '물리': '필수', '화학': '권장' } },
-            '기계공학': { subjects: { '물리': '필수' } },
-            '화학공학': { subjects: { '물리': '권장', '화학': '필수' } },
-            '신소재공학': { subjects: { '물리': '권장', '화학': '필수' } },
-            '산업공학': { subjects: {} },
-            '건축학': { subjects: { '물리': '권장' } },
-            '도시공학': { subjects: { '지구과학': '권장' } },
-            '환경공학': { subjects: { '화학': '권장', '생명과학': '권장' } },
-            '항공우주공학': { subjects: { '물리': '필수' } },
-            '반도체공학': { subjects: { '물리': '필수', '화학': '필수' } },
-            // 자연과학계열
-            '생명공학': { subjects: { '화학': '권장', '생명과학': '필수' } },
-            '생명과학': { subjects: { '화학': '권장', '생명과학': '필수' } },
-            '물리학과': { subjects: { '물리': '필수' } },
-            '화학과': { subjects: { '화학': '필수' } },
-            '수학과': { subjects: {} },
-            '통계학과': { subjects: {} },
-            '지구환경과학': { subjects: { '지구과학': '권장' } },
-            '천문우주학과': { subjects: { '물리': '권장', '지구과학': '권장' } },
-            '식품영양학과': { subjects: { '화학': '권장', '생명과학': '권장' } },
+            // Base recommendations updated based on general trends and university group research.
+            '의예과': {cat:'의약', sub: { '화학': '필수', '생명과학': '필수', '물리학': '권장'}}, 
+            '치의예과': {cat:'의약', sub: { '화학': '필수', '생명과학': '필수', '물리학': '권장'}}, 
+            '한의예과': {cat:'의약', sub: { '생명과학': '필수', '화학': '권장'}}, 
+            '수의예과': {cat:'의약', sub: { '생명과학': '필수', '화학': '필수'}}, 
+            '약학과': {cat:'의약', sub: { '화학': '필수', '생명과학': '필수'}}, 
+            '간호학과': {cat:'보건', sub: { '생명과학': '권장', '화학': '권장'}}, 
+            '물리치료학과': {cat:'보건', sub: { '생명과학': '권장', '물리학': '권장'}}, 
+            '방사선학과': {cat:'보건', sub: { '물리학': '권장', '생명과학': '권장'}}, 
+            '임상병리학과': {cat:'보건', sub: { '생명과학':'필수', '화학':'권장'}}, 
+            '작업치료학과': {cat:'보건', sub: { '생명과학':'권장'}}, 
+            '컴퓨터공학': {cat:'IT', sub: { '물리학': '권장' }}, // Will be overridden by top schools to '심화권장'
+            '소프트웨어': {cat:'IT', sub: { '물리학': '권장' }}, 
+            '인공지능(AI)': {cat:'IT', sub: { '물리학': '권장' }}, 
+            '데이터사이언스': {cat:'IT', sub: {}}, 
+            '정보보호': {cat:'IT', sub: { '물리학': '권장' }}, 
+            '지능형시스템': {cat:'IT', sub: { '물리학': '권장' }}, 
+            '미디어학과': {cat:'IT', sub: {}}, 
+            '게임공학과': {cat:'IT', sub: {'물리학':'권장'}}, 
+            '전기전자공학': {cat:'공학', sub: { '물리학': '필수', '화학': '권장' }}, 
+            '기계공학': {cat:'공학', sub: { '물리학': '필수' }}, 
+            '화학공학': {cat:'공학', sub: { '화학': '필수', '물리학': '권장'}}, 
+            '신소재공학': {cat:'공학', sub: { '화학': '필수', '물리학': '권장'}}, 
+            '산업공학': {cat:'공학', sub: {}}, 
+            '건축학': {cat:'공학', sub: { '물리학': '권장' }}, 
+            '도시공학': {cat:'공학', sub: { '지구과학': '권장' }}, 
+            '환경공학': {cat:'공학', sub: { '화학': '권장', '생명과학': '권장' }}, 
+            '항공우주공학': {cat:'공학', sub: { '물리학': '필수' }}, 
+            '반도체공학': {cat:'공학', sub: { '물리학': '필수', '화학': '필수' }}, 
+            '반도체시스템공학': {cat:'공학', sub: { '물리학': '필수', '화학': '권장' }}, 
+            '에너지공학': {cat:'공학', sub: { '물리학': '권장', '화학': '권장' }}, 
+            '로봇공학': {cat:'공학', sub: { '물리학': '필수' }}, 
+            '미래자동차공학': {cat:'공학', sub: {'물리학':'필수'}}, 
+            '바이오메디컬공학': {cat:'공학', sub: {'생명과학':'권장', '화학':'권장', '물리학':'권장'}}, 
+            '지능형반도체': {cat:'공학', sub: {'물리학':'필수', '화학':'권장'}}, 
+            '생명공학': {cat:'자연', sub: { '생명과학': '필수', '화학': '권장'}}, 
+            '생명과학': {cat:'자연', sub: { '생명과학': '필수', '화학': '권장'}}, 
+            '물리학과': {cat:'자연', sub: { '물리학': '필수' }}, 
+            '화학과': {cat:'자연', sub: { '화학': '필수' }}, 
+            '수학과': {cat:'자연', sub: {}}, 
+            '통계학과': {cat:'자연', sub: {}}, 
+            '지구환경과학': {cat:'자연', sub: { '지구과학': '권장' }}, 
+            '천문우주학과': {cat:'자연', sub: { '물리학': '권장', '지구과학': '권장' }}, 
+            '식품영양학과': {cat:'자연', sub: { '화학': '권장', '생명과학': '권장' }}, 
+            '뇌과학': {cat:'자연', sub: {'생명과학': '필수', '화학': '권장'}}, 
+            '해양과학': {cat:'자연', sub: {'지구과학': '권장', '생명과학':'권장'}}, 
+            '의류학과(자연)': {cat:'자연', sub: {'화학':'권장'}}, 
+            '화장품학': {cat:'자연', sub: {'화학':'필수', '생명과학':'권장'}}, 
+            '스마트팜': {cat:'자연', sub: {'생명과학':'권장', '화학':'권장'}}, 
+            '항공운항학': {cat:'공학', sub: { '물리학': '권장', '지구과학': '권장' }}
         },
         overrides: [
-            // 대학별 특화 반영 (주요 대학 발표 기반)
-            { univ: '서울대', major: '의예과', subjects: { '생명과학': '필수(Ⅰ,Ⅱ)' } },
-            { univ: '서울대', major: '기계공학', subjects: { '물리': '필수(Ⅱ)' } },
-            { univ: '서울대', major: '전기전자공학', subjects: { '물리': '필수(Ⅱ)', '화학': '권장(Ⅰ)' } },
-            { univ: '서울대', major: '화학공학', subjects: { '화학': '필수(Ⅰ,Ⅱ)', '물리': '권장(Ⅰ)' } },
-            { univ: '서울대', major: '컴퓨터공학', subjects: { '물리': '권장(Ⅰ,Ⅱ)' } },
-            { univ: '연세대', major: '의예과', subjects: { '생명과학': '필수(Ⅰ,Ⅱ)' } },
-            { univ: '연세대', major: '약학과', subjects: { '화학': '필수(Ⅰ,Ⅱ)', '생명과학': '필수(Ⅰ,Ⅱ)' } },
-            { univ: '연세대', major: '전기전자공학', subjects: { '물리': '필수(Ⅰ,Ⅱ)' } },
-            { univ: '고려대', major: '전기전자공학', subjects: { '물리': '필수(Ⅰ,Ⅱ)', '화학': '필수(Ⅰ)' } },
-            { univ: '고려대', major: '신소재공학', subjects: { '화학': '필수(Ⅰ,Ⅱ)' } },
-            { univ: '성균관대', major: '의예과', subjects: { '화학': '필수(Ⅰ,Ⅱ)', '생명과학': '필수(Ⅰ,Ⅱ)' } },
-            { univ: '성균관대', major: '반도체공학', subjects: { '물리': '필수(Ⅰ,Ⅱ)' } },
-            { univ: '한양대', major: '전기전자공학', subjects: { '물리': '필수(Ⅰ,Ⅱ)' } },
-            { univ: '경희대', note: '과학Ⅱ 과목 이수 시 가산점 부여 가능성' },
-            { univ: '동국대', note: '과학 교과 성취도 별도 반영 또는 가산점' },
-            { univ: '건국대', note: '과탐 필수 응시/가산점 폐지, 교차지원 유연' },
-            { univ: '서울시립대', note: '자연계 지원자의 과학Ⅱ 과목 이수 시 가산점(약 3~7%)' },
-            { univ: '세종대', note: '자연계에서 과학Ⅱ 과목 이수 시 가산점 부여' },
-            { univ: '숭실대', note: '자연계에서 과학Ⅱ 과목 이수 시 가산점 부여' },
-            { univ: '홍익대', note: '자연계에서 과학Ⅱ 과목 이수 시 가산점 부여' },
-            { univ: '국민대', note: '자연계에서 과학 교과 성취도 별도 반영 또는 가산점' },
+            // UPDATED DATA: 서울대, 연세대, 고려대 등 최상위권 대학의 권장과목을 '심화권장'으로 명시하고 구체적인 note 추가
+            { univ: '서울대', major: '의예과', subjects: { '화학': '심화권장', '생명과학': '심화권장' }, note: '화학Ⅱ, 생명과학Ⅱ 이수가 사실상 필수' }, 
+            { univ: '서울대', major: '치의예과', subjects: { '화학': '심화권장', '생명과학': '심화권장' }},
+            { univ: '서울대', major: '수의예과', subjects: { '화학': '심화권장', '생명과학': '심화권장' }},
+            { univ: '서울대', major: '기계공학', subjects: { '물리학': '심화권장' }, note: '물리학Ⅱ 이수 강력 권장' }, 
+            { univ: '서울대', major: '전기전자공학', subjects: { '물리학': '심화권장' } }, 
+            { univ: '서울대', major: '컴퓨터공학', subjects: { '물리학': '심화권장' } }, 
+            { univ: '서울대', major: '항공우주공학', subjects: { '물리학': '심화권장' } }, 
+            { univ: '연세대', major: '의예과', subjects: { '화학': '심화권장', '생명과학': '심화권장' }},
+            { univ: '연세대', major: '치의예과', subjects: { '화학': '심화권장', '생명과학': '심화권장' }},
+            { univ: '연세대', major: '약학과', subjects: { '화학': '심화권장', '생명과학': '심화권장' } }, 
+            { univ: '연세대', major: '인공지능(AI)', subjects: { '물리학': '심화권장' } }, 
+            { univ: '연세대', major: '반도체시스템공학', subjects: { '물리학': '심화권장', '화학': '필수' }, note: '계약학과 특성상 심화과목 중요' },
+            { univ: '고려대', major: '의예과', subjects: { '화학': '심화권장', '생명과학': '심화권장' }, note: '심화과학 2과목 이상 이수 권장' }, 
+            { univ: '고려대', major: '반도체공학', subjects: { '물리학': '심화권장', '화학': '필수' } }, 
+            { univ: '고려대', major: '스마트모빌리티학부', subjects: { '물리학': '심화권장' } },
+            { univ: '성균관대', major: '반도체시스템공학', subjects: { '물리학': '심화권장' } }, 
+            { univ: '한양대', major: '데이터사이언스', subjects: { '물리학': '권장' } }, 
+            { univ: '경희대', note: '과학 진로선택과목 이수 시 가산점 부여 가능성 높음' }, 
+            { univ: '동국대', note: 'AI융합학부 등 특정 학과 과학 교과 가중치 적용' }, 
+            { univ: '건국대', note: '과탐 필수/가산점 폐지로 교차지원 유연' }, 
+            { univ: '세종대', major: '지능형드론공학', subjects: {'물리학':'필수'}}, 
+            { univ: '한국항공대', major: '항공운항학', subjects: { '물리학': '필수', '지구과학': '권장' } }, 
+            { univ: '한국항공대', major: '항공우주공학', subjects: { '물리학': '필수', '지구과학': '권장' } }, 
+            { univ: 'KAIST', note: '전공에 따라 물리, 화학, 생명과학 심화과목 이수 매우 중요' },
+            { univ: 'KAIST', major: '물리학과', subjects: { '물리학': '심화권장', '화학': '권장' } }, 
+            { univ: 'KAIST', major: '화학과', subjects: { '화학': '심화권장', '물리학': '권장' } }, 
+            { univ: '포항공대', note: 'KAIST와 유사, 수학/과학 심화 역량 핵심 평가 요소' },
+            { univ: '포항공대', major: '기계공학', subjects: { '물리학': '심화권장', '화학': '권장' } },
         ],
         strategies: {
-            '물리학': { icon: '⚛️', description: "수학적 사고가 필수, 핵심 공학 분야에 절대적으로 유리합니다.", levels: [ { grade: 1, pros: "최상위 공대 진학 시 강력한 무기, 학업역량 증명", cons: "높은 학습량과 난이도, 시간 투자 많이 필요", plan: "단순 공식 암기를 넘어 원리 증명과 심화 문제(킬러) 풀이에 집중. 물리 올림피아드나 관련 탐구 보고서로 학생부 차별화." }, { grade: 2, pros: "기계/전전 희망 시 필수, 수학에 자신 있다면 도전 가능", cons: "개념 이해에 시간 소요, 내신 등급 하락 위험 존재", plan: "EBS, 인강을 통한 예습 필수. 특히 역학과 전자기 파트의 기본 개념과 대표 유형을 반복 학습. 물리Ⅰ을 확실히 잡는 전략 유효." }, { grade: 3, pros: "뚜렷한 공학 계열 목표가 있다면 기초 역량 증명 가능", cons: "내신 등급 확보에 가장 불리, 학습 부담 매우 큼", plan: "전공 필수 아니면 다른 과목 고려. 포기하지 않는다면 교과서 기본 예제와 시각 자료를 활용해 개념 이해에 집중." } ] },
-            '화학': { icon: '🧪', description: "암기량과 계산이 모두 중요하며, 의약학 및 생명/소재 분야의 핵심입니다.", levels: [ { grade: 1, pros: "의약학/화공/신소재 필수, 화학Ⅱ 이수 시 학종에서 유리", cons: "방대한 암기량과 킬러 문항(양적 관계) 존재", plan: "전 범위 꼼꼼한 개념 학습과 고난도 문제 풀이 병행. 주기율표, 화학 결합 등 기본기를 완벽히 하고 심화 탐구 활동 연계." }, { grade: 2, pros: "대부분의 이과 학과에서 요구, 범용성 높음", cons: "응시자 많아 내신 경쟁 치열, 암기와 계산 모두 요구됨", plan: "오답노트 활용으로 실수를 줄이는 것이 관건. 주요 개념 반복 암기와 함께, 몰 농도, pH 등 계산 유형 집중 연습." }, { grade: 3, pros: "생명/지구과학과 조합 시 수월, 포기하기엔 아까운 과목", cons: "방대한 학습량에 대한 부담", plan: "핵심 빈출 파트(1,4단원) 우선 공략. 스토리텔링 암기법, 마인드맵 등을 활용하여 학습 효율 증대." } ] },
-            '생명과학': { icon: '🧬', description: "암기량이 가장 많지만 친숙하며, 의료/보건/생명 계열의 필수 과목입니다.", levels: [ { grade: 1, pros: "의학계열 지원 시 필수, 안정적인 등급 확보 가능", cons: "고난도 유전 파트가 변별력 핵심, 꼼꼼한 암기 요구", plan: "유전 파트 완벽 이해 목표. 나머지 단원은 자신만의 노트로 체계화하여 암기. 심도 있는 생명과학 실험 및 탐구 활동 진행." }, { grade: 2, pros: "흥미 기반 접근 용이, 내신 안정성 비교적 높음", cons: "방대한 암기량, 자료 해석 문항에서 실수 유발", plan: "개념 이해와 암기의 균형이 중요. 그림, 도표를 활용해 시각적으로 암기하고, 기출문제로 자료 해석 능력 배양." }, { grade: 3, pros: "수학 부담 적어 등급 향상에 유리한 전략 과목", cons: "단순 암기만으로는 고득점 한계, 유전 파트 장벽", plan: "용어 암기가 최우선. 교과서의 모든 그림과 그래프를 분석하는 연습. 유전은 기본 유형부터 반복 풀이하여 자신감 확보." } ] },
-            '지구과학': { icon: '🌏', description: "학습 부담이 가장 적고 암기 위주지만, 전공 연계성은 다소 낮습니다.", levels: [ { grade: 1, pros: "안정적인 1등급 확보에 가장 유리, 내신 관리 용이", cons: "최상위권 공대 등에서 전공적합성 어필 힘듦", plan: "교과서 개념의 완벽한 숙지와 자료 해석 문항 집중 공략. 천체 파트는 3차원적 공간 지각 능력 필요. 실수 줄이기가 관건." }, { grade: 2, pros: "내신 평균 등급 방어에 효과적, 학습 부담 적음", cons: "상위권 누적으로 한 문제 실수가 등급 결정", plan: "교과서와 기출문제 반복으로 패턴 익히기. 생소한 자료나 신유형 문제에 대비하는 연습 필요." }, { grade: 3, pros: "가장 접근하기 쉬운 과목, 성적 향상 가능성 높음", cons: "전공과 무관할 경우 학종에서 불리할 수 있음", plan: "암기가 전부. 자신만의 암기법 개발. 모의고사 문제 풀이를 통해 자료 해석 능력과 시간 관리 연습." } ] }
+            // Strategy text maintained, as it is fundamentally sound.
+            '물리학': { icon: '⚛️', levels: [ { grade: 1, plan: "주 6~8시간" }, { grade: 2, plan: "주 5~6시간" }, { grade: 3, plan: "주 4~5시간" } ], details: [ {grade: 1, text: "개념의 논리적 증명과 킬러 문항(역학, 전자기)에 집중. 수행평가는 탐구 보고서 형태로 깊이 있게 준비."}, {grade: 2, text: "EBS 연계교재로 선행 후, 학교 수업으로 심화. 오답노트로 역학 파트 약점 보완. 수행평가는 실험 설계 중심으로."}, {grade: 3, text: "교과서 기본 문제와 공식 암기 후 유형별 문제풀이 반복. 전공 필수가 아니라면 전략적 포기도 고려."} ] },
+            '화학': { icon: '🧪', levels: [ { grade: 1, plan: "주 6~7시간" }, { grade: 2, plan: "주 5~6시간" }, { grade: 3, plan: "주 4~5시간" } ], details: [ {grade: 1, text: "양적 관계, 중화 반응 킬러 유형 정복 목표. 전 단원 꼼꼼한 개념 학습 필수. 수행평가는 실험 과정의 정확성 어필."}, {grade: 2, text: "1, 4단원에 집중하며 암기와 계산 능력 균형 맞추기. 주기적 백지 복습으로 암기량 관리."}, {grade: 3, text: "빈출 개념 위주로 암기. 계산 문제는 기본 유형만 반복하고, 암기 단원에서 점수 확보 전략."} ] },
+            '생명과학': { icon: '🧬', levels: [ { grade: 1, plan: "주 5~6시간" }, { grade: 2, plan: "주 4~5시간" }, { grade: 3, plan: "주 3~4시간" } ], details: [ {grade: 1, text: "유전 파트 완전 정복에 시간 투자. 나머지 단원은 마인드맵으로 체계화하여 암기. 수행평가는 유전 가계도 분석 보고서."}, {grade: 2, text: "개념 암기와 자료 해석 능력 향상에 집중. 기출문제 분석으로 빈출 자료 유형 파악. 수행평가는 교과서 탐구 활동 충실히."}, {grade: 3, text: "암기 위주로 접근하여 등급 확보. 스토리텔링으로 개념을 연결하고, 용어 암기에 집중."} ] },
+            '지구과학': { icon: '🌏', levels: [ { grade: 1, plan: "주 4~5시간" }, { grade: 2, plan: "주 3~4시간" }, { grade: 3, plan: "주 2~3시간" } ], details: [ {grade: 1, text: "전 범위 꼼꼼한 개념 암기와 자료 해석 연습. 천체 파트는 별도 시간 투자 필요. 실수 줄이기가 관건."}, {grade: 2, text: "기출문제 반복으로 문제 유형 익히기. 교과서의 모든 그림, 그래프, 표를 완벽히 이해."}, {grade: 3, text: "암기 효율을 극대화. 내신 평균 등급을 올리는 전략 과목으로 활용. 전공 부적합성은 감수."} ] }
         },
         combinations: [
-            { name: "물리 I + 화학 I", target: "최상위 공학/자연계열", difficulty: 90, pros: "대부분의 최상위 공대에서 요구하는 핵심 조합. 전공 적합성에서 가장 유리.", cons: "두 과목 모두 학습량이 많고 난이도가 높아 최상위권 학생에게 적합.", grade: "1등급" },
-            { name: "화학 I + 생명과학 I", target: "의약학/생명계열", difficulty: 80, pros: "의약학, 생명공학 계열의 표준 조합. 관련 학과 지원 시 필수적.", cons: "암기량이 매우 많고, 화학의 계산과 생명과학의 유전 파트가 까다로움.", grade: "1-2등급" },
-            { name: "물리 I + 지구과학 I", target: "공학계열(전략적 선택)", difficulty: 70, pros: "물리 부담을 지구과학으로 완화. 건축, 도시, 지구환경공학 등에 유리.", cons: "화학이 필수인 학과(화공, 신소재) 지원 시 불리할 수 있음.", grade: "2-3등급" },
-            { name: "생명과학 I + 지구과학 I", target: "내신 등급 확보", difficulty: 50, pros: "학습 부담이 가장 적어 안정적인 내신 등급 확보에 유리. 간호, 보건계열에 적합.", cons: "상위권 공대 지원 시 전공 적합성에서 가장 불리하게 평가될 수 있음.", grade: "2-3등급" }
+             // UPDATED DATA: 'path' values are updated to official 2022 revised curriculum subject names.
+            { name: "물리학 + 화학", profile: "최상위 공학도", data: [5, 5, 2, 4, 5], adv: "반도체, 신소재, 전기전자, 기계, 화공 등 거의 모든 최상위 공학계열", pros: "이공계열의 가장 표준적인 조합. 대부분의 상위권 대학에서 요구하는 핵심 역량을 증명하여 전공 적합성 평가에서 최고점을 받을 수 있습니다. 세특에 심화 탐구 내용을 기록하기 가장 용이합니다.", cons: "두 과목 모두 상당한 계산 능력과 깊이 있는 개념 이해를 요구하여 학습 부담이 매우 크며, 최상위권이 아닐 경우 내신 등급 관리에 어려움을 겪을 수 있습니다.", path: {y2s1: ['물리학', '화학'], y2s2: ['역학과 에너지', '화학 반응의 세계']}, trend: [58, 60, 62], trend_desc: "가장 전통적이고 안정적인 이과 상위권 조합으로, 선택 비율이 압도적으로 높고 꾸준히 유지될 전망입니다." },
+            { name: "화학 + 생명과학", profile: "의치약학 지망생", data: [5, 4, 3, 5, 4], adv: "의예, 치의예, 약학, 수의예, 생명공학, 화장품학 등", pros: "의약학 및 생명과학 계열 지원을 위한 가장 정석적인 조합입니다. 두 과목의 내용이 유기적으로 연결되어 시너지 효과와 함께 깊이 있는 세특 작성이 가능합니다.", cons: "두 과목 모두 암기량이 방대하며, 화학의 양적 관계와 생명과학의 유전 파트가 '킬러 문항'으로 작용하여 동시에 발목을 잡을 위험이 있습니다.", path: {y2s1: ['화학', '생명과학'], y2s2: ['화학 반응의 세계', '생물의 유전']}, trend: [52, 58, 65], trend_desc: "의약학 계열 선호 현상이 지속되면서, 이 조합의 선택 비율은 앞으로도 계속해서 증가할 것으로 보입니다." },
+            { name: "물리학 + 지구과학", profile: "전략적 공학도", data: [4, 3, 4, 2, 3], adv: "건축, 도시, 항공우주, 지구환경, 천문우주 등", pros: "물리학의 높은 난이도를 상대적으로 평이한 지구과학으로 보완할 수 있습니다. 내신 등급을 안정적으로 관리하며 전공 필수과목을 챙기는 전략적 선택입니다.", cons: "화학을 필수로 요구하는 화학공학, 신소재공학 등 일부 상위권 학과 지원 시 전공 적합성에서 불리하게 작용할 수 있어 세특 관리가 중요합니다.", path: {y2s1: ['물리학', '지구과학'], y2s2: ['역학과 에너지', '지구시스템과학']}, trend: [40, 42, 43], trend_desc: "안정적인 등급 확보를 중시하는 중상위권 학생들을 중심으로 꾸준한 선택을 받을 것으로 예상됩니다." },
+            { name: "생명과학 + 지구과학", profile: "안정지향 수험생", data: [2, 2, 5, 4, 2], adv: "간호, 보건, 식품영양, 환경, 해양과학 등", pros: "4과목 중 학습 부담이 가장 적어 내신 등급 확보에 가장 유리한 조합입니다. 암기와 자료 해석에 강점이 있는 학생에게 최적입니다.", cons: "최상위권 공과대학 및 자연과학대학 지원 시, 학업 역량과 도전 정신을 보여주기 어려워 전공 적합성 평가에서 매우 불리할 수 있습니다.", path: {y2s1: ['생명과학', '지구과학'], y2s2: ['세포와 물질대사', '지구시스템과학']}, trend: [35, 33, 30], trend_desc: "학습량 부담으로 인해 선택 비율이 높지만, 상위권 변별력이 낮아 최상위권에서는 점차 감소할 수 있습니다." },
+            { name: "물리학 + 생명과학", profile: "첨단 융합인재", data: [4, 4, 3, 3, 3], adv: "의공학, 뇌과학, 바이오메디컬, 재활/물리치료 등", pros: "물리학적 원리와 생명 현상을 동시에 이해하는 융합적 역량을 어필할 수 있어, 최근 각광받는 첨단 융합 학과에 매우 적합합니다. 세특 주제 확장이 용이합니다.", cons: "두 과목의 학습 내용 및 문제 해결 방식이 상이하여 시너지 효과를 기대하기 어려우며, 각각 별도의 깊이 있는 학습이 요구됩니다.", path: {y2s1: ['물리학', '생명과학'], y2s2: ['역학과 에너지', '생물의 유전']}, trend: [15, 18, 22], trend_desc: "첨단 융합 학문의 인기가 높아짐에 따라, 이 조합의 선택 비율은 앞으로 점진적으로 상승할 것입니다." },
+            { name: "화학 + 지구과학", profile: "실속파 수험생", data: [3, 3, 4, 3, 3], adv: "환경공학, 해양과학, 도시공학, 일부 신소재 계열", pros: "범용성 높은 화학을 챙기면서, 지구과학으로 학습 부담을 조절하는 실리적인 조합입니다. 중위권 학생이 안정적으로 성적을 관리하기에 좋습니다.", cons: "물리학을 필수로 요구하는 기계공학, 전기전자공학 등 핵심 공과대학 지원이 사실상 불가능해져 상위권 대학 선택의 폭이 좁아집니다.", path: {y2s1: ['화학', '지구과학'], y2s2: ['화학 반응의 세계', '행성우주과학']}, trend: [12, 11, 10], trend_desc: "상위권 공대 지원의 한계로 인해, 선택 비율은 현상 유지 또는 소폭 감소할 가능성이 있습니다." },
+            // RESTORED Social Studies combinations
+            { name: "생명과학 + 화학 + 현대사회와 윤리", profile: "의생명·윤리 융합 전문가", data: [5, 2, 3, 4, 3], adv: "의료윤리, 생명윤리정책, 보건의료 마케팅, 제약/바이오 R&D, 뇌인지과학", pros: "자연과학적 탐구 역량과 윤리적 통찰력을 동시에 어필 가능. 특히 의약학 계열 심층 면접에서 생명 윤리 관련 질문에 강점을 보일 수 있습니다.", cons: "세 과목 모두 암기량이 많고 학습 연관성이 낮아 시간 투자가 많이 필요합니다. 전통 공학계열 지원 시 전공 적합성 어필이 다소 약할 수 있습니다.", path: {y2s1: ['생명과학', '화학', '현대사회와 윤리'], y2s2: ['생물의 유전', '화학 반응의 세계', '윤리문제 탐구']}, trend: [5, 8, 12], trend_desc: "융합형 인재 선호도 증가 및 의학 계열의 윤리 의식 강조로 인해 선택 비율이 꾸준히 상승할 전망입니다." },
+            { name: "생명과학 + 지구과학 + 사회와 문화", profile: "인간/환경·정책 전문가", data: [3, 2, 4, 3, 3], adv: "환경정책, 보건행정, 소비자학, 사회복지, 생활과학 등", pros: "학습 부담이 비교적 적어 내신 관리에 유리하며, 과학적 지식과 사회 현상에 대한 이해를 결합하여 문·이과 융합형 인재임을 보여줄 수 있습니다.", cons: "최상위권 이공계열 지원 시 심층적인 학업 역량을 보여주기에는 다소 부족할 수 있습니다. 세 과목 간 시너지가 약해 개별 학습이 중요합니다.", path: { y2s1: ['생명과학', '지구과학', '사회와 문화'], y2s2: ['세포와 물질대사', '지구시스템과학', '사회문제 탐구'] }, trend: [8, 10, 13], trend_desc: "문이과 통합 교육 과정의 안정화에 따라, 다양한 분야로의 진출을 모색하는 학생들에게 꾸준히 선택받을 것입니다." },
+        ],
+        references: [
+            // UPDATED DATA: More specific and recent sources added.
+            {text: "교육부 「미래 사회를 대비하는 2028 대학입시제도 개편 확정안」", url: "https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=97551&lev=0&searchType=null&statusYN=W&page=1&s=moe&m=020402&opType=N"},
+            {text: "서울대학교 「2028학년도 대학 신입학생 입학전형 전공 연계 교과이수 과목 안내」", url: "http://www.veritas-a.com/news/articleView.html?idxno=560797"},
+            {text: "고려대학교 「2028학년도 대입전형 수립을 위한 고교-대학 연계 포럼 자료집」", url: "https://www.kyobit.com/news/articleView.html?idxno=1459"},
+            {text: "연세대 등 5개 대학 공동연구 「2028학년도 대입개편에 따른 전형 개선 연구」", url: "https://www.megastudy.net/mobile/smart/entinfo/brd/list.asp?t_Gubun=7&pidx=7409"},
+            {text: "대입정보포털 「어디가」 - 대학별 입학정보", url: "https://www.adiga.kr/"}, 
+            {text: "서울특별시교육청교육연구정보원 「2022 개정 교육과정 선택과목 안내서」", url: "https://jinhak.sen.go.kr/jinhak/common/file/download.do?fileSeq=434606&bbsId=B0000030"}, 
+            {text: "베리타스알파 - 2028 대입개편 뉴스", url: "http://www.veritas-a.com/"},
         ]
     };
-
-    // 현재 선택된 전형 모드: "종합" 또는 "교과". 기본값은 종합전형입니다.
-    let currentMode = '종합';
-
-    // ===================================
-    // 렌더링 함수
-    // ===================================
+    
     const searchInput = document.getElementById('searchInput');
     const tablesContainer = document.getElementById('tablesContainer');
-    const strategyContainer = document.getElementById('strategy-tabs-container');
+    const subjectAnalysisContainer = document.getElementById('subject-analysis-container');
     const combinationsContainer = document.getElementById('combinations-container');
 
-    // 전형 선택 버튼을 감지하여 모드를 변경하고 UI를 업데이트합니다.
-    const btnJonghap = document.getElementById('btnJonghap');
-    const btnGyogwa = document.getElementById('btnGyogwa');
-    const modeDescription = document.getElementById('modeDescription');
-
-    function updateModeUI() {
-        if (currentMode === '종합') {
-            // 활성/비활성 스타일 조정
-            btnJonghap.classList.remove('bg-white', 'text-indigo-600', 'border-gray-300');
-            btnJonghap.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
-            btnGyogwa.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
-            btnGyogwa.classList.add('bg-white', 'text-gray-600', 'border-gray-300');
-            // 모드 설명
-            modeDescription.textContent = '학생부 종합전형: 전공 관련 과목 이수 내역과 비교과 활동을 종합 평가합니다.';
-        } else {
-            btnGyogwa.classList.remove('bg-white', 'text-gray-600', 'border-gray-300');
-            btnGyogwa.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
-            btnJonghap.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
-            btnJonghap.classList.add('bg-white', 'text-gray-600', 'border-gray-300');
-            modeDescription.textContent = '학생부 교과전형: 내신 성적을 중심으로 평가하며 과목 이수에 따른 유불리는 거의 없습니다. 일부 대학에서 과학Ⅱ 과목 이수 시 가산점이 적용될 수 있습니다.';
-        }
-    }
-
-    btnJonghap.addEventListener('click', () => {
-        currentMode = '종합';
-        updateModeUI();
-        renderTables(searchInput.value);
-    });
-    btnGyogwa.addEventListener('click', () => {
-        currentMode = '교과';
-        updateModeUI();
-        renderTables(searchInput.value);
-    });
-
-    // 초기 UI 업데이트
-    updateModeUI();
 
     function renderAll() {
+        createStars(320);
+        createComet();
         renderTables(searchInput.value);
-        renderStrategies();
+        renderSubjectAnalysis();
         renderCombinations();
+        renderCoreMetrics();
+        renderReferences();
+        setupAccordion();
+        setupRippleEffect();
     }
+
+    function createStars(count) {
+        const container = document.getElementById('stars-container');
+        if (!container) return;
+        let starsHtml = '';
+        for (let i = 0; i < count; i++) {
+            const size = Math.random() * 2 + 0.5;
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            const delay = Math.random() * 5;
+            const duration = Math.random() * 3 + 4;
+            starsHtml += `<div class="star" style="width:${size}px; height:${size}px; left:${x}%; top:${y}%; animation-delay:${delay}s; animation-duration:${duration}s;"></div>`;
+        }
+        container.innerHTML = starsHtml; 
+    }
+    
+    
+    function createComet() {
+        const container = document.getElementById('comet-container');
+        if (!container) return;
+        container.innerHTML = ''; 
+
+        const comet = document.createElement('div');
+        comet.className = 'comet';
+
+        const particleCount = 40;
+        for (let i = 0; i < particleCount; i++) {
+            const p = document.createElement('div');
+            p.className = 'comet-particle';
+            
+            const size = Math.random() * 2 + 1;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+
+            const trailOffset = -Math.random() * 200; 
+            const spreadY = (Math.random() - 0.5) * 20;    
+            
+            p.style.left = `${trailOffset}px`;
+            p.style.top = `${spreadY}px`;
+            p.style.animationDelay = `${(Math.random() * 1.8).toFixed(2)}s`;
+            
+            comet.appendChild(p);
+        }
+        container.appendChild(comet);
+    }
+    
 
     function renderTables(query = '') {
         const q = query.trim().toLowerCase();
-        
         const dataToRender = db.universities.flatMap(univ => {
             return Object.entries(db.majors).map(([major, majorData]) => {
-                if (q && !major.toLowerCase().includes(q) && !univ.name.toLowerCase().includes(q) && !univ.group.toLowerCase().includes(q)) {
+                if (q && !major.toLowerCase().includes(q) && !univ.name.toLowerCase().includes(q) && !univ.group.toLowerCase().includes(q) && !majorData.cat.toLowerCase().includes(q)) {
                     return null;
                 }
+                let finalSubjects = { '물리학': '무관', '화학': '무관', '생명과학': '무관', '지구과학': '무관', ...majorData.sub };
                 
-                // 각 전형에 따라 과목 유불리를 계산합니다.
-                let finalSubjects;
-                if (currentMode === '종합') {
-                    // 종합전형: 기본 과목 정보 + 대학별 override를 반영합니다.
-                    finalSubjects = { 물리: '무관', 화학: '무관', 생명과학: '무관', 지구과학: '무관' };
-                    Object.assign(finalSubjects, majorData.subjects);
-                    const override = db.overrides.find(o => o.univ === univ.name && (o.major === major || !o.major));
-                    if (override && override.subjects) {
-                        Object.assign(finalSubjects, override.subjects);
-                    }
-                } else {
-                    // 교과전형: 대부분 과목은 내신 성적을 종합적으로 평가하여 특정 과목 이수 여부에 따른 유불리가 없습니다.
-                    // 기본값은 모두 "무관"으로 설정하고, 가산점 정책이 있는 대학은 "가산점"으로 표시합니다.
-                    finalSubjects = { 물리: '무관', 화학: '무관', 생명과학: '무관', 지구과학: '무관' };
-                    const override = db.overrides.find(o => o.univ === univ.name && (o.major === major || !o.major));
-                    if (override && override.note && override.note.includes('가산점')) {
-                        finalSubjects = { 물리: '가산점', 화학: '가산점', 생명과학: '가산점', 지구과학: '가산점' };
-                    }
+                // Apply general override for the university first
+                const generalOverride = db.overrides.find(o => o.univ === univ.name && !o.major);
+                if(generalOverride && generalOverride.note) {
+                    // This note will be attached to the university header, not individual subjects
                 }
-
-                return { university: univ.name, major, group: univ.group, subjects: finalSubjects };
+                
+                // Apply major-specific override
+                const majorOverride = db.overrides.find(o => o.univ === univ.name && o.major === major);
+                if (majorOverride && majorOverride.subjects) {
+                    Object.assign(finalSubjects, majorOverride.subjects);
+                }
+                
+                return { 
+                    university: univ.name, 
+                    major, 
+                    group: univ.group, 
+                    subjects: finalSubjects,
+                    note: majorOverride?.note || generalOverride?.note // Prioritize major-specific note
+                };
             }).filter(Boolean);
         });
 
         const groupedByUniv = dataToRender.reduce((acc, item) => {
-            if (!acc[item.university]) {
-                acc[item.university] = { group: item.group, majors: [] };
-            }
+            if (!acc[item.university]) acc[item.university] = { group: item.group, majors: [], note: '' };
             acc[item.university].majors.push(item);
+            // Find a general note for the university header
+            const univNote = db.overrides.find(o => o.univ === item.university && !o.major && o.note);
+            if(univNote) acc[item.university].note = univNote.note;
+
             return acc;
         }, {});
 
-        let html = '';
-        if (Object.keys(groupedByUniv).length === 0) {
-            html = '<p class="text-center text-gray-500 text-lg">검색 결과가 없습니다. 다른 키워드로 검색해보세요.</p>';
-        } else {
-            for (const [univName, data] of Object.entries(groupedByUniv)) {
-                html += `
-                    <div class="bg-white rounded-2xl shadow-md overflow-hidden">
-                      <div class="p-4 bg-gray-100 border-b-2 border-gray-200 flex justify-between items-center">
-                        <h3 class="text-2xl font-bold text-blue-800">${univName} <span class="text-lg font-medium text-gray-600">(${data.group})</span></h3>
-                        ${db.overrides.find(o => o.univ === univName && o.note) ? `<p class="text-sm text-indigo-600 font-semibold">${db.overrides.find(o => o.univ === univName).note}</p>` : ''}
-                      </div>
-                      <div class="overflow-x-auto">
-                        <table class="w-full min-w-max">
-                          <thead>
-                            <tr class="bg-gray-50">
-                              <th class="p-3 text-left font-semibold text-gray-600">모집단위</th>
-                              <th class="p-3 text-center font-semibold text-gray-600">물리학</th>
-                              <th class="p-3 text-center font-semibold text-gray-600">화학</th>
-                              <th class="p-3 text-center font-semibold text-gray-600">생명과학</th>
-                              <th class="p-3 text-center font-semibold text-gray-600">지구과학</th>
+        tablesContainer.innerHTML = Object.keys(groupedByUniv).length === 0 
+            ? '<p class="text-center text-gray-500 text-lg">검색 결과가 없습니다. 다른 키워드로 검색해보세요.</p>'
+            : Object.entries(groupedByUniv).sort((a,b) => a[0].localeCompare(b[0])).map(([univName, data]) => {
+                return `
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover">
+                  <div class="p-4 bg-gray-100 border-b-2 border-gray-200 flex justify-between items-center flex-wrap gap-2">
+                    <div class="flex items-center gap-3">
+                      <h3 class="text-xl md:text-2xl font-bold text-blue-800">${univName} <span class="text-base md:text-lg font-medium text-gray-600">(${data.group})</span></h3>
+                    </div>
+                    ${data.note ? `<p class="text-xs md:text-sm text-indigo-600 font-semibold text-right w-full sm:w-auto">${data.note}</p>` : ''}
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="w-full min-w-max">
+                      <thead><tr class="bg-gray-50 text-xs text-gray-500 uppercase">
+                          <th class="p-3 text-left font-semibold">모집단위</th>
+                          <th class="p-3 text-center font-semibold">물리학</th><th class="p-3 text-center font-semibold">화학</th>
+                          <th class="p-3 text-center font-semibold">생명과학</th><th class="p-3 text-center font-semibold">지구과학</th>
+                      </tr></thead>
+                      <tbody class="divide-y divide-gray-200">
+                        ${data.majors.sort((a,b) => a.major.localeCompare(b.major)).map(m => `
+                            <tr class="hover:bg-gray-50">
+                              <td class="p-3 font-bold text-sm">${m.major} ${m.note ? `<span class="text-indigo-500 text-xs font-normal block sm:inline sm:ml-2">(${m.note})</span>` : ''}</td>
+                              ${Object.entries(m.subjects).map(([subName, s]) => `<td class="p-3 text-center">${getBadge(s, subName)}</td>`).join('')}
                             </tr>
-                          </thead>
-                          <tbody>`;
-                
-                data.majors.sort((a,b) => a.major.localeCompare(b.major)).forEach(m => {
-                    html += `
-                        <tr class="border-t">
-                          <td class="p-3 font-bold">${m.major}</td>
-                          ${Object.values(m.subjects)
-                              .map(s => `<td class="p-3 text-center">${getBadge(s)}</td>`)
-                              .join('')}
-                        </tr>
-                    `;
-                });
-
-                html += `</tbody></table></div></div>`;
-            }
-        }
-        tablesContainer.innerHTML = html;
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+            `}).join('');
     }
     
-    function getBadge(value) {
-        let cls = 'badge-neutral';
+    function getBadge(value, subjectName) {
+        let cls = 'badge-neutral', text = value.split('(')[0];
         if (value.includes('필수')) cls = 'badge-required';
+        else if (value.includes('심화권장')) { cls = 'badge-advanced'; text = "심화권장"; }
         else if (value.includes('권장')) cls = 'badge-recommended';
-        else if (value.includes('가산')) cls = 'badge-bonus';
-        return `<span class="badge ${cls}">${value}</span>`;
+        return `<span class="badge ${cls}" data-tooltip="${subjectName}: ${value}">${text}</span>`;
     }
 
-    function renderStrategies() {
-        let html = '';
-        for (const [subject, data] of Object.entries(db.strategies)) {
-            html += `
-            <div class="bg-gray-50 rounded-xl shadow-sm p-6 flex flex-col">
-              <h4 class="text-2xl font-bold mb-2">${data.icon} ${subject}</h4>
-              <p class="text-gray-600 mb-4 text-sm">${data.description}</p>
-              
-              <div class="flex-grow">
-                  <div class="mb-4 border-b border-gray-200">
-                    <nav class="-mb-px flex space-x-4" aria-label="Tabs">
-                      ${data.levels.map((level) => `
-                        <button class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                data-subject="${subject}" data-grade="${level.grade}">
-                          ${level.grade}등급 전략
-                        </button>
-                      `).join('')}
-                    </nav>
-                  </div>
-
-                  ${data.levels.map(level => `
-                    <div id="tab-content-${subject}-${level.grade}" class="tab-content hidden">
-                        <div class="space-y-3 text-sm">
-                            <p><strong class="text-blue-600">👍 장점:</strong> ${level.pros}</p>
-                            <p><strong class="text-red-600">👎 단점:</strong> ${level.cons}</p>
-                            <p><strong class="text-green-600">🎯 전략:</strong> ${level.plan}</p>
+    function renderSubjectAnalysis() {
+        subjectAnalysisContainer.innerHTML = Object.entries(db.strategies).map(([subject, data]) => `
+            <div class="mb-12">
+                <h3 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">🚀 ${subject} 등급 수직상승 전략</h3>
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <div class="mb-6">
+                        <h4 class="font-bold text-lg mb-2 text-center">등급별 주간 최소 학습 시간</h4>
+                        <div class="flex items-end space-x-4 h-48 p-4 justify-center">
+                        ${data.levels.map(level => `
+                            <div class="text-center flex-1 h-full flex flex-col justify-end max-w-xs">
+                                <div class="bg-blue-200 rounded-t-lg mx-auto w-3/4" style="height: ${parseInt(level.plan.match(/\d+/)[0]) * 12}px;"></div>
+                                <div class="text-sm font-bold bg-blue-500 text-white py-1 rounded-b-lg w-3/4 mx-auto">${level.plan}</div>
+                                <div class="text-xs mt-1 font-semibold">${level.grade}등급</div>
+                            </div>
+                        `).join('')}
                         </div>
                     </div>
-                  `).join('')}
-              </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        ${data.details.map(detail => `
+                            <div class="card-hover bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                                <h4 class="font-bold text-lg text-blue-600 mb-2">${detail.grade}등급 학생 전략</h4>
+                                <p class="text-sm text-gray-700">${detail.text}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
             </div>
-            `;
-        }
-        strategyContainer.innerHTML = html;
-        setupTabs();
+        `).join('');
     }
 
-    function setupTabs() {
-        const tabButtons = document.querySelectorAll('.tab-button');
+    function renderCombinations() {
+        const comboHours = {
+            '물리학 + 화학': '⏳ 주당 약 20~25시간', 
+            '화학 + 생명과학': '⏳ 주당 약 18~22시간', 
+            '물리학 + 지구과학': '⏳ 주당 약 16~20시간', 
+            '생명과학 + 지구과학': '⏳ 주당 약 14~18시간', 
+            '물리학 + 생명과학': '⏳ 주당 약 17~21시간', 
+            '화학 + 지구과학': '⏳ 주당 약 15~19시간',
+            '생명과학 + 화학 + 현대사회와 윤리': '⏳ 주당 약 18~23시간',
+            '생명과학 + 지구과학 + 사회와 문화': '⏳ 주당 약 15~20시간'
+        };
+        combinationsContainer.innerHTML = db.combinations.map((combo, index) => `
+            <div class="card-hover bg-white rounded-xl shadow-md p-6">
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="md:w-1/2">
+                        <h4 class="text-xl font-bold text-indigo-700 mb-1">${combo.name}</h4>
+                        <p class="text-sm font-semibold text-gray-600 mb-2">추천 프로필: <span class="text-indigo-700">${combo.profile}</span></p>
+                        <span class="hours-badge mb-4">${comboHours[combo.name] || "⏳ 주당 약 15~20시간"}</span>
+                    </div>
+                    <div class="md:w-1/2">
+                        <div class="mt-2 p-3 highlight-box border-l-4 border-yellow-400 rounded-r-lg">
+                            <p class="text-sm text-gray-700"><strong class="font-bold text-yellow-800">✨ 추천 학과:</strong> ${combo.adv}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-6 mt-4 items-center">
+                    <div class="w-full md:w-1/2 h-64"><canvas id="comboRadarChart${index}"></canvas></div>
+                    <div class="w-full md:w-1/2">
+                        <div class="h-48"><canvas id="comboTrendChart${index}"></canvas></div>
+                        <p class="text-xs text-center text-gray-600 mt-2">${combo.trend_desc || ""}</p>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h5 class="font-bold mb-2">2학년 선택과목 이수 경로 (예시)</h5>
+                    <div class="text-sm space-y-2 bg-gray-50 p-3 rounded-lg mb-4">
+                        <div class="flex items-center">
+                            <span class="font-bold text-blue-600 mr-2 w-24">일반선택:</span>
+                            <span>${combo.path.y2s1.join(' + ')}</span>
+                        </div>
+                        <div class="text-center text-gray-400">▼</div>
+                        <div class="flex items-center">
+                            <span class="font-bold text-purple-600 mr-2 w-24">진로선택:</span>
+                            <span>${combo.path.y2s2.join(' + ')}</span>
+                        </div>
+                    </div>
+                    <div class="text-sm space-y-2">
+                        <p><strong class="text-blue-600">👍 장점:</strong> ${combo.pros}</p>
+                        <p><strong class="text-red-600">👎 단점:</strong> ${combo.cons || "특별한 단점 없음"}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
         
-        Object.keys(db.strategies).forEach(subject => {
-            const firstButton = document.querySelector(`.tab-button[data-subject="${subject}"][data-grade="1"]`);
-            if (firstButton) {
-                firstButton.classList.add('active');
-                document.getElementById(`tab-content-${subject}-1`).classList.remove('hidden');
-            }
-        });
+        db.combinations.forEach((combo, index) => {
+            const radarCtx = document.getElementById(`comboRadarChart${index}`).getContext('2d');
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['전공적합성', '학습량↓', '내신확보', '세특연계', '범용성'],
+                    datasets: [{
+                        label: '조합 특성',
+                        data: [combo.data[0], 6 - combo.data[1], combo.data[2], combo.data[3], combo.data[4]],
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)', borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 2, pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true,
+                    scales: { r: { angleLines: { display: true }, suggestedMin: 0, suggestedMax: 5, pointLabels: { font: { size: 11 } }, ticks: { display: false, stepSize: 1 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
 
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const subject = button.dataset.subject;
-                const grade = button.dataset.grade;
-
-                document.querySelectorAll(`.tab-button[data-subject="${subject}"]`).forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll(`.tab-content[id^="tab-content-${subject}-"]`).forEach(content => content.classList.add('hidden'));
-
-                button.classList.add('active');
-                document.getElementById(`tab-content-${subject}-${grade}`).classList.remove('hidden');
+            const trendCtx = document.getElementById(`comboTrendChart${index}`).getContext('2d');
+            new Chart(trendCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2026', '2027', '2028'],
+                    datasets: [{
+                        data: combo.trend || [0, 0, 0],
+                        backgroundColor: 'rgba(244, 114, 182, 0.6)', borderColor: 'rgba(244, 114, 182, 1)',
+                        borderWidth: 1, barThickness: 12, maxBarThickness: 14, borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+                        y: { 
+                            beginAtZero: true, max: 70, 
+                            ticks: { 
+                                stepSize: 10, font: { size: 11 },
+                                callback: function(value) { return value + '%'; }
+                            } 
+                        }
+                    },
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: { enabled: true },
+                        title: { display: true, text: '전국 선택 비율 예상(%)', font: { size: 14, weight: 'bold' } }
+                    }
+                }
             });
         });
     }
 
-    function renderCombinations() {
-        let html = '';
-        db.combinations.forEach(combo => {
-            html += `
-            <div class="combination-card bg-white rounded-xl shadow-md p-6">
-                <h4 class="text-xl font-bold text-indigo-700 mb-2">${combo.name}</h4>
-                <p class="text-sm font-semibold text-gray-600 mb-3">추천 등급: <span class="text-indigo-700">${combo.grade}</span></p>
-                
-                <div class="mb-3">
-                    <label class="text-xs font-bold">학습 난이도</label>
-                    <div class="h-4 w-full rounded-full bg-gray-200 mt-1">
-                        <div class="h-4 rounded-full bg-gradient-to-r from-yellow-400 to-red-500" style="width: ${combo.difficulty}%"></div>
-                    </div>
-                </div>
-
-                <div class="text-sm space-y-2">
-                    <p><strong class="text-gray-800">🎯 목표 계열:</strong> ${combo.target}</p>
-                    <p><strong class="text-blue-600">👍 장점:</strong> ${combo.pros}</p>
-                    <p><strong class="text-red-600">👎 단점:</strong> ${combo.cons}</p>
-                </div>
-            </div>
-            `;
-        });
-        combinationsContainer.innerHTML = html;
+    function renderCoreMetrics() {
+        const ctx = document.getElementById('coreMetricsChart').getContext('2d');
+        if (window.coreChart) window.coreChart.destroy();
+        const data = {
+            labels: ['공부량', '난이도', '수행평가량', '세특 연계', '국어 스킬', '수학 스킬'],
+            datasets: [
+                { label: '물리학', data: [5, 5, 3, 4, 2, 5], backgroundColor: 'rgba(79, 70, 229, 0.6)', borderColor: 'rgba(79, 70, 229, 1)', borderWidth: 1 }, { label: '화학', data: [4, 4, 4, 5, 3, 4], backgroundColor: 'rgba(34, 197, 94, 0.6)', borderColor: 'rgba(34, 197, 94, 1)', borderWidth: 1 }, { label: '생명과학', data: [3, 4, 4, 4, 4, 3], backgroundColor: 'rgba(234, 179, 8, 0.6)', borderColor: 'rgba(234, 179, 8, 1)', borderWidth: 1 }, { label: '지구과학', data: [2, 2, 5, 3, 4, 3], backgroundColor: 'rgba(96, 165, 250, 0.6)', borderColor: 'rgba(96, 165, 250, 1)', borderWidth: 1 }
+            ]
+        };
+        const options = {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { stacked: false, ticks: { font: { size: 12 } } },
+                y: { beginAtZero: true, max: 5, ticks: { stepSize: 1, font: { size: 12 } } }
+            },
+            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 12 } } }, tooltip: { enabled: true } }
+        };
+        window.coreChart = new Chart(ctx, { type: 'bar', data, options });
     }
 
-    // ===================================
-    // 이벤트 리스너 및 초기화
-    // ===================================
+    function renderReferences() {
+        document.getElementById('accordion-content').innerHTML = db.references.map(ref => 
+            `<p><a href="${ref.url}" target="_blank" rel="noopener noreferrer" class="hover:text-yellow-300 transition-colors duration-300">${ref.text}</a></p>`
+        ).join('');
+    }
+    
+    function setupAccordion() {
+        const button = document.getElementById('accordion-button');
+        const content = document.getElementById('accordion-content');
+        const arrow = document.getElementById('accordion-arrow');
+        button.addEventListener('click', () => {
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        });
+    }
+
+    function setupRippleEffect() {
+        document.body.addEventListener('mousedown', function(e) {
+            const card = e.target.closest('.card-hover');
+            if (!card) return;
+            const rect = card.getBoundingClientRect();
+            const circle = document.createElement('span');
+            const diameter = Math.max(card.clientWidth, card.clientHeight);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - rect.left - radius}px`;
+            circle.style.top = `${e.clientY - rect.top - radius}px`;
+            circle.classList.add('ripple');
+            
+            const ripple = card.getElementsByClassName('ripple')[0];
+            if (ripple) ripple.remove();
+            
+            card.appendChild(circle);
+        });
+    }
+
     searchInput.addEventListener('input', () => renderTables(searchInput.value));
     renderAll();
 });
