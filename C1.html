@@ -1,0 +1,298 @@
+<!-- Colour Palette: Brilliant Blues (#0077B6, #00B4D8, #48CAE4, #90E0EF) -->
+<!-- Infographic Narrative Plan: 1. Summary (Big Numbers: 1 Unit Price X 2), 2. Cost Breakdown (Doughnut Chart: 1 Unit Price X 2), 3. Profit Scenarios (Bar Chart: Value X 2), 4. Strategy, 5. Checklist. NO SVG, NO MERMAID JS used. Chart.js used for visualization. -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>청량리 6구역 투자 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #0077B6, #00B4D8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .strategy-card {
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .strategy-card:hover {
+            border-color: #00B4D8;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-black gradient-text mb-2">청량리 6구역 24평 X 2채 투자 대시보드</h1>
+            <p class="text-lg text-gray-600">우리 가족의 성공적인 투자를 위한 최종 분석 리포트 (모든 금액은 2채 합산 기준)</p>
+        </header>
+
+        <main>
+            <section id="summary" class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8">📊 한눈에 보는 핵심 투자 지표 (1채 가격 강조)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div class="card p-6">
+                        <h3 class="text-xl font-bold text-gray-500 mb-2">1채당 조합원 분양가 (예상)</h3>
+                        <p class="text-4xl font-black text-[#0077B6]">약 8.5억 원</p>
+                        <p class="text-sm text-gray-500 mt-2">총 2채: 17.0억 원</p>
+                    </div>
+                    <div class="card p-6 bg-gradient-to-br from-[#0077B6] to-[#00B4D8] text-white">
+                        <h3 class="text-xl font-bold mb-2">총 예상 투자 원금 (2채 합산)</h3>
+                        <p class="text-4xl font-black">약 18.0억 원</p>
+                        <p class="text-sm mt-2 opacity-90">(1채 기준 약 9.0억 원, 옵션/추가비용 포함)</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-xl font-bold text-gray-500 mb-2">최종 예상 시세차익 (2채 합산)</h3>
+                        <p class="text-4xl font-black text-[#0077B6]">7억 ~ 11억 원</p>
+                        <p class="text-sm text-gray-500 mt-2">(긍정적 1채당 약 5.5억 원 시세차익 기대)</p>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                <section id="cost-analysis" class="card p-6 md:p-8">
+                    <h2 class="text-2xl font-bold text-center mb-2">💰 비용 상세 분석 (총 원가: 약 18.0억 원)</h2>
+                    <p class="text-center text-gray-600 mb-6">1채당 약 8.5억 원 (총 17.0억 원)의 분양가를 기반으로 계산했어요.</p>
+                    <div class="chart-container h-64 md:h-72">
+                        <canvas id="costBreakdownChart"></canvas>
+                    </div>
+                    <ul class="mt-6 space-y-2 text-lg">
+                        <li class="flex justify-between items-center"><span class="font-bold">🔵 조합원 분양가 (1채 x 2):</span> <span class="font-bold">17.0억 원</span></li>
+                        <li class="flex justify-between items-center"><span class="font-bold">⚪️ 추가 비용 (2채):</span> <span class="font-bold">약 1.0억 원</span></li>
+                        <li class="text-sm text-gray-500 pl-4">ㄴ 발코니 확장, 옵션, 취득세 등 포함</li>
+                    </ul>
+                </section>
+                
+                <section id="profit-scenario" class="card p-6 md:p-8">
+                    <h2 class="text-2xl font-bold text-center mb-2">🚀 미래가치 시나리오별 수익 예상 (1채 시세 X 2)</h2>
+                    <p class="text-center text-gray-600 mb-6">입주 시점 예상 시세 (1채당)를 기반으로 2채의 총 가치를 산정했습니다.</p>
+                    <div class="chart-container h-64 md:h-72">
+                        <canvas id="profitScenarioChart"></canvas>
+                    </div>
+                    <ul class="mt-6 space-y-2 text-lg">
+                         <li class="flex justify-between items-center"><span class="font-bold">🔵 총 투자 원금:</span> <span class="font-bold">18.0억 원</span></li>
+                         <li class="flex justify-between items-center"><span class="font-bold text-green-600">🟢 일반적 시나리오 (12.5억 x 2):</span> <span class="font-bold text-green-600">25억 원 (+7.0억 차익)</span></li>
+                         <li class="flex justify-between items-center"><span class="font-bold text-blue-600">🔷 긍정적 시나리오 (14.5억 x 2):</span> <span class="font-bold text-blue-600">29억 원 (+11.0억 차익)</span></li>
+                    </ul>
+                </section>
+            </div>
+            
+            <section id="strategy" class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8">🗺️ 최종 결정: 3가지 투자 전략 비교</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card strategy-card p-6 text-center">
+                        <div class="text-5xl mb-4">🏦</div>
+                        <h3 class="text-xl font-bold mb-2">전략 1: 장기 보유 (안정성)</h3>
+                        <p class="text-gray-600">2채 모두 장기 보유하며 임대 수익과 시세 상승을 함께 노리는 가장 안정적인 전략입니다.</p>
+                        <div class="mt-4 text-left space-y-2">
+                           <p><span class="font-bold text-green-600">👍 장점:</span> 꾸준한 현금 흐름, GTX 개통 등 호재 효과 극대화.</p>
+                           <p><span class="font-bold text-red-600">👎 단점:</span> 초기 투자금 회수 기간이 길어짐, 세금 부담.</p>
+                        </div>
+                    </div>
+
+                    <div class="card strategy-card p-6 text-center border-4 border-[#00B4D8]">
+                         <div class="text-5xl mb-4">💰</div>
+                        <h3 class="text-xl font-bold mb-2">전략 2: 1채 매도 (수익 실현)</h3>
+                        <p class="text-gray-600">1채는 비과세 요건(2년 거주 등) 충족 후 매도하여 투자금을 회수하고, 나머지 1채는 보유하는 균형 전략입니다.</p>
+                        <div class="mt-4 text-left space-y-2">
+                           <p><span class="font-bold text-green-600">👍 장점:</span> 투자 원금 조기 회수, 대출 상환, 세금 혜택 가능.</p>
+                           <p><span class="font-bold text-red-600">👎 단점:</span> 1채의 추가 시세 상승 기회는 포기해야 함.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card strategy-card p-6 text-center">
+                        <div class="text-5xl mb-4">🏠</div>
+                        <h3 class="text-xl font-bold mb-2">전략 3: 2채 모두 임대 (현금 흐름)</h3>
+                        <p class="text-gray-600">2채 모두 전세 또는 월세로 임대하여 매달 안정적인 현금 수익을 창출하는 데 집중하는 전략입니다.</p>
+                        <div class="mt-4 text-left space-y-2">
+                           <p><span class="font-bold text-green-600">👍 장점:</span> 가장 높은 임대 수익, 주변 대학/직장인 수요 풍부.</p>
+                           <p><span class="font-bold text-red-600">👎 단점:</span> 공실 리스크, 임대 관리의 번거로움이 있을 수 있음.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="checklist" class="card p-6 md:p-8 bg-gray-50">
+                <h2 class="text-3xl font-bold text-center mb-8">✅ 우리 가족 필수 실천 체크리스트</h2>
+                <div class="max-w-2xl mx-auto">
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-3">🗓️</span>
+                            <div>
+                                <h4 class="font-bold">자금 계획 및 대출 준비</h4>
+                                <p class="text-gray-600 text-base">중도금 및 잔금 납부 일정에 맞춰 자금 조달 계획을 세우고, 주택담보대출 규제(LTV, DSR)를 미리 확인하여 최적의 대출 상품을 알아봐야 합니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-3">✍️</span>
+                            <div>
+                                <h4 class="font-bold">세금 전문가 상담</h4>
+                                <p class="text-gray-600 text-base">취득세, 보유세(재산세, 종부세), 양도세 등 세금 문제가 복잡합니다. 1가구 2주택 상황에 맞는 절세 전략을 위해 반드시 세무사와 상담하세요.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-3">👨‍👩‍👧‍👦</span>
+                            <div>
+                                <h4 class="font-bold">가족 최종 투자 전략 확정</h4>
+                                <p class="text-gray-600 text-base">위 3가지 시나리오(장기보유, 1채 매도, 전체 임대)를 바탕으로 우리 가족의 재정 상황과 목표에 가장 적합한 최종 투자 방향을 함께 논의하고 결정해야 합니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-3">📰</span>
+                            <div>
+                                <h4 class="font-bold">부동산 시장 동향 지속적 확인</h4>
+                                <p class="text-gray-600 text-base">입주 시점까지 금리, 정부 정책, 주변 아파트 시세 등 시장 변화를 꾸준히 지켜보며 유연하게 대응할 준비를 합니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 py-6 border-t">
+            <p class="text-gray-500">본 보고서는 제공된 정보를 바탕으로 한 투자 참고 자료이며, 시장 상황에 따라 변동될 수 있습니다.</p>
+            <p class="text-gray-500 text-sm">최종 수정: 2025년 10월 6일</p>
+        </footer>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const commonTooltipCallback = {
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    title: function(tooltipItems) {
+                        const item = tooltipItems[0];
+                        let label = item.chart.data.labels[item.dataIndex];
+                        if (Array.isArray(label)) {
+                          return label.join(' ');
+                        } else {
+                          return label;
+                        }
+                    }
+                }
+            }
+        }
+    };
+    
+    if (document.getElementById('costBreakdownChart')) {
+        new Chart(document.getElementById('costBreakdownChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['조합원 분양가 (17.0억)', '추가 비용 (1.0억)'],
+                datasets: [{
+                    data: [17.0, 1.0],
+                    backgroundColor: ['#0077B6', '#CAF0F8'],
+                    borderColor: ['#FFFFFF'],
+                    borderWidth: 4,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 14 },
+                            padding: 20,
+                            // 라벨이 너무 길 경우 Chart.js가 자동으로 줄바꿈 처리
+                        }
+                    },
+                    tooltip: commonTooltipCallback.plugins.tooltip
+                }
+            }
+        });
+    }
+
+    if (document.getElementById('profitScenarioChart')) {
+        new Chart(document.getElementById('profitScenarioChart'), {
+            type: 'bar',
+            data: {
+                labels: ['총 투자 원금 (9.0억 X 2)', '일반적 가치 (12.5억 X 2)', '긍정적 가치 (14.5억 X 2)'],
+                datasets: [{
+                    label: '예상 금액 (억 원)',
+                    data: [18.0, 25.0, 29.0],
+                    backgroundColor: ['#90E0EF', '#00B4D8', '#0077B6'],
+                    borderRadius: 8,
+                    barThickness: 50,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '억';
+                            },
+                            font: { size: 12 }
+                        }
+                    },
+                    y: {
+                        grid: {
+                           display: false
+                        },
+                         ticks: {
+                            font: { size: 14, weight: 'bold' }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: commonTooltipCallback.plugins.tooltip
+                }
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>
