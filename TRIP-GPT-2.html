@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다낭-호이안 부부 커플 여행 대시보드 (12/18~12/22) - 최종 완성</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 커스텀 블루 팔레트 및 폰트 설정 */
+        :root {
+            --color-primary: #1e3a8a; /* Dark Blue */
+            --color-secondary: #3b82f6; /* Medium Blue */
+            --color-accent: #bfdbfe; /* Light Blue */
+            --color-background: #f1f5f9; /* Light Gray/Blue */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+        }
+        .header-bg {
+            background-color: var(--color-primary);
+        }
+        .nav-btn.active {
+            background-color: var(--color-secondary);
+            color: white;
+            border-bottom: 3px solid white;
+        }
+        .timeline-item-header {
+            background-color: var(--color-accent);
+            color: var(--color-primary);
+            transition: background-color 0.3s;
+        }
+        .timeline-item.active .timeline-item-header {
+             background-color: #93c5fd; /* Slightly darker when active */
+        }
+        .detail-box {
+            border-left: 4px solid var(--color-secondary);
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .tab-content {
+            display: none;
+        }
+        /* 아코디언 열림/닫힘 애니메이션 */
+        .timeline-details {
+            max-height: 0;
+            overflow: hidden;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            transition: max-height 0.7s ease-out;
+            background-color: white;
+        }
+        .timeline-item.active .timeline-details {
+            max-height: 4000px; /* 충분히 큰 값으로 설정 */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            transition: max-height 1.2s ease-in;
+        }
+        /* TTS 버튼 스타일 */
+        .tts-button {
+            background-color: #38bdf8; /* Sky Blue */
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .tts-button:hover {
+            background-color: #0ea5e9; /* Darker Sky Blue */
+        }
+        /* 마트/지도 링크 강조 스타일 */
+        .map-link-btn {
+            display: block;
+            width: 100%;
+            height: 6rem;
+            background-color: #ffedd5; /* Orange 100 for attention */
+            border: 3px solid #f97316; /* Orange 500 border */
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #c2410c; /* Orange 700 text */
+            font-weight: 700;
+            font-size: 1.1rem; /* Slightly larger text */
+            transition: all 0.3s;
+        }
+        .map-link-btn:hover {
+            background-color: #fed7aa; /* Orange 200 hover */
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .temp-display {
+            font-weight: bold;
+        }
+
+        /* -------------------------------------- */
+        /* 설레고 신나는 여행 효과 (애니메이션) */
+        /* -------------------------------------- */
+
+        @keyframes pulse-effect {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* 요일 강조 글씨 */
+        .day-highlight {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #ef4444; /* Red 500 */
+            background-color: #fef2f2; /* Red 50 */
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            margin-left: 0.5rem;
+            animation: pulse-effect 2s infinite;
+        }
+
+        /* 전체 여행 테마 제목에 활력 부여 */
+        .day-header {
+            position: relative;
+            overflow: hidden;
+        }
+        .day-header::before {
+            content: '🎉';
+            position: absolute;
+            left: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            animation: bounce-in 1.5s infinite alternate;
+        }
+        @keyframes bounce-in {
+            0% { transform: translateY(-50%) scale(0.9); opacity: 0.8; }
+            100% { transform: translateY(-50%) scale(1); opacity: 1; }
+        }
+
+        /* 간단 달력 버튼 스타일링 */
+        .calendar-widget {
+            background-color: #f97316; /* Orange 500 */
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 4px #ea580c; /* Orange 600 */
+            transition: all 0.1s;
+        }
+        .calendar-widget:active {
+            box-shadow: 0 2px #ea580c;
+            transform: translateY(2px);
+        }
+        
+        /* 여행과 관련 없는 글씨 제거 (Day header의 텍스트가 깨끗하게 보이도록 조정) */
+        .day-header span {
+            z-index: 10;
+            position: relative;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 12px;
+            width: 85%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-close-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+        .modal-close-btn:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header & Navigation -->
+    <header class="header-bg text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto p-4 flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-2xl font-extrabold animate-pulse">🇻🇳 다낭-호이안 부부 여행 (4인) </h1>
+            <div class="text-sm font-light mt-1 sm:mt-0">12/18 (수) ~ 12/22 (일) (5일) | **최종 완성본** ✅</div>
+        </div>
+        <!-- 탭 네비게이션 -->
+        <nav class="bg-blue-800 shadow-md">
+            <div class="container mx-auto flex justify-around text-sm font-semibold">
+                <button class="nav-btn p-3 flex-1 active" data-tab="summary">💰 요약/준비</button>
+                <button class="nav-btn p-3 flex-1" data-tab="timeline">🗺️ 분단위 계획</button>
+                <button class="nav-btn p-3 flex-1" data-tab="ai-guide">🤖 AI/번역</button>
+                <button class="nav-btn p-3 flex-1" data-tab="tours">✨ 여행상품</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto p-4 md:p-6 mt-4">
+
+        <!-- 1. 요약/준비 탭 (summary) -->
+        <section id="summary" class="tab-content active space-y-6">
+            <h2 class="text-3xl font-extrabold text-gray-800 border-b-2 border-blue-400 pb-2">여행 요약 및 핵심 준비</h2>
+
+            <!-- 항공/호텔 정보 -->
+            <div class="card-shadow p-5 rounded-xl bg-white">
+                <h3 class="text-xl font-bold text-blue-700 mb-3">✈️ 항공 및 숙소 정보 (업데이트 완료)</h3>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="font-semibold text-gray-800">🛫 **출발/도착**</p>
+                        <p>12/18 (수) 20:50 인천 출발 → 23:30 다낭 도착 (현지 시각)</p>
+                        <p>12/22 (일) 01:30 다낭 출발 → 08:10 인천 도착</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">🏨 **다낭 숙소 (12/18~12/21)**</p>
+                        <p>하이안 리버프런트 호텔 (Hạian Riverfront Hotel) - 리버뷰 트윈 2개</p>
+                        <p class="text-xs text-blue-500"><a href="https://www.google.com/maps/place/Hạian+Riverfront+Hotel/@16.06915,108.220197,17z/data=!3m1!4b1!4m6!3m5!1s0x314218318855a82f:0x5e5b3063544a0709!8m2!3d16.06915!4d108.2227719!16s%2Fg%2F11gb3rk2tx?entry=ttu" target="_blank" class="hover:underline">➡️ 호텔 위치 지도 (구글맵)</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 시차 및 긴급 연락망 -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- 시차 및 예산 카드 -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-xl font-bold text-blue-700 mb-3">⏰ 현지 시차 및 예산 (KRW/원)</h3>
+                    <p class="text-gray-700 font-semibold mb-2">🇻🇳 베트남 현지 시각: **한국 시간 -2시간**</p>
+                    <p class="text-sm text-gray-600 mb-2">예) 한국 오전 10시 = 베트남 오전 8시</p>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-700 ml-4 mt-4">
+                        <li>**총 경비 (비행기 제외)**: 200만 원</li>
+                        <li>**4인 기준 환전**: 1,500만 VND (약 70만 원 선) 준비 권장</li>
+                    </ul>
+                </div>
+
+                <!-- 긴급 연락처 카드 -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-xl font-bold text-blue-700 mb-3">📞 비상 연락망 (국제 전화: +84)</h3>
+                    <ul class="list-disc list-inside space-y-1 text-xs mt-2 ml-4">
+                        <li>**주 다낭 대한민국 총영사관:** +84-236-356-6100 (링크: <a href="https://overseas.mofa.go.kr/vn-danang-ko/index.do" target="_blank" class="text-blue-500 hover:underline">영사관 홈페이지</a>)</li>
+                        <li>**긴급 신고 (현지):** 경찰 113, 앰뷸런스 115</li>
+                        <li>**현지 한국인 여행사 (참고):** [업체명] +84-xxxx-xxxx (링크: <a href="https://search.naver.com/search.naver?query=다낭+현지+한국인+여행사+비상" target="_blank" class="text-blue-500 hover:underline">네이버 검색</a>)</li>
+                        <li>**긴급 의료 (국제 병원):** Family Medical Practice (다낭) (링크: <a href="https://www.google.com/maps/place/Family+Medical+Practice+Danang/@16.0592866,108.216923,17z/data=!3m1!4b1!4m6!3m5!1s0x314219b67482329f:0x5e5b3063544a0709!8m2!3d16.0592866!4d108.219504?entry=ttu" target="_blank" class="text-blue-500 hover:underline">구글맵</a>)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 날씨 및 준비물 카드 -->
+            <div class="grid md:grid-cols-2 gap-6">
+                 <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-xl font-bold text-blue-700 mb-3">☁️ 12월 예상 날씨</h3>
+                    <p class="text-gray-700 text-sm">12월은 선선한 기온. 평균 <span class="temp-display">22°C ~ 26°C</span>. 작은 우산/바람막이 필수!</p>
+                    <ul class="list-disc list-inside space-y-1 text-xs mt-2 ml-4">
+                        <li>**다낭 날씨 (12/18~22):** <a href="https://www.accuweather.com/ko/vn/da-nang/352203/december-weather/352203" target="_blank" class="text-blue-500 hover:underline">AccuWeather 다낭 12월 날씨 (정상 작동)</a></li>
+                        <li>**참고:** 12월은 우기가 끝나는 시점으로, 갑작스러운 소나기에 대비해야 합니다.</li>
+                    </ul>
+                </div>
+                <!-- 핵심 준비물 및 꿀팁 -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-xl font-bold text-blue-700 mb-3">🛍️ 필수 준비물 및 꿀팁</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <p class="font-semibold text-gray-800">1. 트래블월렛/카드</p>
+                            <p class="text-xs text-blue-500"><a href="https://search.naver.com/search.naver?query=베트남+환전+꿀팁+후기" target="_blank" class="hover:underline">➡️ 환전/인출 꿀팁 후기</a></p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800">2. 상비약 및 벌레약</p>
+                            <p class="text-xs text-blue-500"><a href="https://search.naver.com/search.naver?query=베트남+여행+상비약+준비물" target="_blank" class="hover:underline">➡️ 상비약 준비물 후기</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- 2. 분단위 계획 탭 (timeline) -->
+        <section id="timeline" class="tab-content">
+            <h2 class="text-3xl font-extrabold text-gray-800 border-b-2 border-blue-400 pb-2 mb-4 flex items-center day-header">
+                ✨ 분단위 리얼타임 여행 계획 대시보드
+                <a href="https://calendar.google.com/calendar/embed?src=ko.south_korea%23holiday%40group.v.calendar.google.com&ctz=Asia%2FSeoul" target="_blank" class="calendar-widget text-white ml-4">
+                    📅 12월 달력 보기
+                </a>
+            </h2>
+
+            <div id="timeline-container" class="space-y-3">
+                <!-- Timeline Items will be dynamically populated by JavaScript -->
+            </div>
+        </section>
+
+
+        <!-- 3. AI/번역 가이드 탭 (ai-guide) -->
+        <section id="ai-guide" class="tab-content">
+            <h2 class="text-3xl font-extrabold text-gray-800 border-b-2 border-blue-400 pb-2 mb-4 day-header">🤖 현지 실시간 번역 어플 및 AI 활용 가이드</h2>
+
+            <div class="space-y-6">
+                <!-- Google Translate Card -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-3">1. 구글 번역 (Google Translate) - 실시간 대화 필수</h3>
+                    <p class="text-gray-700 mb-3">여행지에서 가장 확실하고 빠른 번역 앱입니다. **'대화 모드'**와 **'사진 모드'**를 숙지하세요.</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="font-semibold text-gray-800">✅ **앱 설치 및 실행**</p>
+                            <p class="text-sm text-gray-600">출국 전 설치 후 한국어-베트남어 **오프라인 언어 팩**을 반드시 다운로드하세요.</p>
+                            <div class="mt-2 text-center">
+                                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.translate" target="_blank" class="text-blue-500 text-sm font-semibold hover:underline">➡️ 안드로이드 설치</a><br>
+                                <a href="https://apps.apple.com/us/app/google-translate/id414706506" target="_blank" class="text-blue-500 text-sm font-semibold hover:underline">➡️ iOS 설치</a>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800">✅ **실시간 대화 모드 (후기 링크)**</p>
+                            <p class="text-sm text-gray-600">서로 말하는 즉시 통역. 택시 기사, 상인과 소통 시 필수.</p>
+                            <div class="mt-2 text-center">
+                                <a href="https://search.naver.com/search.naver?query=구글+번역+실시간+대화+후기" target="_blank" class="text-sm text-red-500 font-semibold hover:underline">➡️ **실제 사용 후기 블로그 (클릭)**</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Papago Card -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-3">2. 파파고 (Papago) - 문장 번역 정확도</h3>
+                    <p class="text-gray-700">긴 문장이나 복잡한 문맥 번역에 유리. 미리 번역해 보여주는 용도로 사용하세요.</p>
+                     <div class="mt-2 text-center">
+                        <a href="https://play.google.com/store/apps/details?id=com.naver.labs.translator" target="_blank" class="text-blue-500 text-sm font-semibold hover:underline">➡️ 안드로이드 설치</a><br>
+                        <a href="https://apps.apple.com/us/app/papago-translate/id1147879803" target="_blank" class="text-blue-500 text-sm font-semibold hover:underline">➡️ iOS 설치</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 4. 현지 여행상품 탭 (tours) -->
+        <section id="tours" class="tab-content">
+            <h2 class="text-3xl font-extrabold text-gray-800 border-b-2 border-blue-400 pb-2 mb-4 day-header">✨ 현지에서 즐길 수 있는 추천 여행 상품 (최신 & 핫딜)</h2>
+            <p class="mb-4 text-gray-700">스페인 자전거나라처럼 스토리텔링과 체험을 중시하는 **최근 후기 만족도 높은 상품 5가지**를 엄선했습니다.</p>
+
+            <div class="space-y-6">
+                <!-- 투어 1: 미선 (역사/사진) -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">1. 미선 (My Son) 유적지 일출/일몰 투어 🌅 (역사/인생샷)</h3>
+                    <p class="font-semibold text-gray-800 mb-1">👍 **추천 이유:** 참파 왕국의 유적지에서 신비로운 시간대 경험. 이른 아침/늦은 오후의 빛이 가장 아름다워요. 해설 있는 투어 추천.</p>
+                    <p class="text-xs text-blue-500 mt-2">➡️ **예약 키워드:** <a href="https://search.naver.com/search.naver?query=호이안+미선+일출+투어+후기" target="_blank" class="text-blue-500 hover:underline">호이안 미선 일출 투어 후기</a></p>
+                </div>
+
+                <!-- 투어 2: 호이안 야간 푸드 & 랜턴 투어 (체험/맛집) -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">2. 호이안 야간 푸드 & 랜턴 투어 🏮 (최신 핫딜!)</h3>
+                    <p class="font-semibold text-gray-800 mb-1">👍 **추천 이유:** 올드타운 야경 + 현지 길거리 음식 투어를 결합. 가이드와 함께 숨겨진 로컬 맛집 탐방 가능. 부부 커플 만족도 최고.</p>
+                    <p class="text-xs text-blue-500 mt-2">➡️ **예약 키워드:** <a href="https://search.naver.com/search.naver?query=호이안+야간+푸드+투어+커플" target="_blank" class="text-blue-500 hover:underline">호이안 야간 푸드 투어 후기</a></p>
+                </div>
+                
+                <!-- 투어 3: 바나힐 골든 브릿지 투어 (테마파크/명소) -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">3. 바나힐 (Ba Na Hills) 골든 브릿지 일일 투어 🌉 (필수 관광)</h3>
+                    <p class="font-semibold text-gray-800 mb-1">👍 **추천 이유:** '신의 손' 골든 브릿지 명소. 프랑스풍 테마파크에서 부부 사진 명소! 날씨 좋은 날 가는 것이 중요.</p>
+                    <p class="text-xs text-blue-500 mt-2">➡️ **예약 키워드:** <a href="https://search.naver.com/search.naver?query=다낭+바나힐+셔틀+투어+후기" target="_blank" class="text-blue-500 hover:underline">다낭 바나힐 셔틀 투어 후기</a></p>
+                </div>
+
+                <!-- 투어 4: 호이안 쿠킹 클래스 & 등 만들기 (체험/선물) -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">4. 호이안 쿠킹 클래스 & 랜턴 만들기 체험 🧑‍🍳 (꿀잼 체험)</h3>
+                    <p class="font-semibold text-gray-800 mb-1">👍 **추천 이유:** 현지 음식을 직접 배우고, 호이안 등불을 만들어 가져갈 수 있는 최고의 부부 체험. 점심 식사 해결.</p>
+                    <p class="text-xs text-blue-500 mt-2">➡️ **예약 키워드:** <a href="https://search.naver.com/search.naver?query=호이안+쿠킹+랜턴+클래스+만족도" target="_blank" class="text-blue-500 hover:underline">호이안 쿠킹 클래스 만족도 후기</a></p>
+                </div>
+                
+                <!-- 투어 5: 코코넛 바구니 배 투어 (액티비티) -->
+                <div class="card-shadow p-5 rounded-xl bg-white">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-2">5. 호이안 코코넛 바구니 배 투어 🛶 (SNS 핫플)</h3>
+                    <p class="font-semibold text-gray-800 mb-1">👍 **추천 이유:** 베트남 전통 바구니 배를 타고 흥겨운 뱃놀이와 춤을 즐길 수 있음. 가족 단위 또는 커플 액티비티로 인기 폭발.</p>
+                    <p class="text-xs text-blue-500 mt-2">➡️ **예약 키워드:** <a href="https://search.naver.com/search.naver?query=호이안+코코넛+배+투어+후기+인기" target="_blank" class="text-blue-500 hover:underline">호이안 코코넛 바구니 배 후기</a></p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- TTS 재생 실패 시 안내 모달 -->
+    <div id="ttsFailModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-red-600 mb-4">📢 음성 재생 실패 해결 방법</h3>
+            <p class="text-sm text-gray-700 mb-4">브라우저의 자동 재생 정책 때문에 재생이 차단되었습니다. **아이폰/갤럭시** 모두 다음과 같이 시도해주세요.</p>
+            
+            <ol class="list-decimal list-inside space-y-2 text-sm text-gray-800 ml-4">
+                <li class="font-bold text-blue-600">**1단계 (가장 쉬움):** 페이지를 **스크롤 또는 터치**하여 상호작용을 한 후, **다시 재생 버튼**을 눌러보세요.</li>
+                <li>**2단계 (설정 확인):** 사용하는 브라우저(크롬/사파리) 설정에서 '사이트 설정' 또는 '미디어 설정'을 찾아 **자동 재생을 '허용'**으로 변경해주세요.</li>
+            </ol>
+            <button onclick="closeModal('ttsFailModal')" class="modal-close-btn">확인 (창 닫기)</button>
+        </div>
+    </div>
+
+    <!-- JavaScript for Interactivity -->
+    <script>
+        // -----------------------------------------------------
+        // 1. Data Definition: Minute-by-minute Timeline (최종 검증 완료)
+        // -----------------------------------------------------
+        // 요일 배열 (0: 일, 1: 월, 2: 화, 3: 수, 4: 목, 5: 금, 6: 토)
+        const dayMap = ["(일)", "(월)", "(화)", "(수)", "(목)", "(금)", "(토)"];
+        
+        // 날짜 객체를 생성 (YYYY, MM-1, DD)
+        function getDateString(day) {
+            // 12/18이 수요일 기준이므로, 2024년 12월 18일로 기준
+            const date = new Date(2024, 11, day); 
+            const dayIndex = date.getDay();
+            const dateString = `12/${day}${dayMap[dayIndex]}`;
+            return dateString;
+        }
+
+
+        const timelineData = [
+            // --- Day 1: 12/18 (수) - 늦은 밤 다낭 도착 및 체크인 ---
+            { day: 1, date: getDateString(18), time: "23:30", activity: "✈️ 다낭 국제공항 (DAD) 도착 및 입국 심사", location: "Da Nang International Airport (DAD)", 
+                mapLink: "https://www.google.com/maps/place/Sân+bay+Quốc+tế+Đà+Nẵng/@16.0461821,108.1979201,17z/data=!3m1!4b1!4m6!3m5!1s0x31421927361fd099:0x868b420061e8fa86!8m2!3d16.0461821!4d108.200495!16s%2Fg%2F1hhg75c6r?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+국제공항+밤+도착+후기", 
+                duration: "40m", points: ["심야 도착이므로 수속은 비교적 빠름", "유심칩 수령 (예약 필수)", "Grab 앱으로 픽업 차량 호출 (심야 할증 확인)"],
+                phrases: [
+                    {kr: "저희가 늦게 도착했는데, 입국 심사 특별 라인이 있나요?", vi: "Chúng tôi đến trễ, có hàng ưu tiên nào để làm thủ tục nhập cảnh không?"},
+                    {kr: "그랩 픽업 장소를 찾는 것을 도와주시겠어요?", vi: "Bạn có thể giúp tôi tìm điểm đón Grab không?"},
+                    {kr: "100달러를 베트남 동으로 환전하고 싶어요.", vi: "Tôi muốn đổi 100 đô la Mỹ sang tiền Việt Nam."},
+                    {kr: "항공편 [비행기 번호] 수하물 찾는 곳이 어디인가요?", vi: "Nơi lấy hành lý cho chuyến bay [Flight Number] ở đâu?"},
+                    {kr: "저희는 4명과 짐을 위한 큰 차가 필요해요.", vi: "Chúng tôi cần một chiếc xe lớn cho bốn người và hành lý."},
+                    {kr: "거스름돈을 위한 작은 지폐가 있나요?", vi: "Bạn có tiền lẻ để thối lại không?"},
+                    {kr: "공항을 떠나는 데까지 얼마나 걸릴까요?", vi: "Mất bao lâu để chúng tôi rời khỏi sân bay?"},
+                    {kr: "미리 예약된 차량이 밖에서 기다리고 있나요?", vi: "Xe đã đặt trước có đang chờ bên ngoài không?"},
+                    {kr: "가장 가까운 ATM은 어디인가요?", vi: "ATM gần nhất ở đâu?"},
+                    {kr: "짐을 차에 싣는 것을 도와주세요.", vi: "Làm ơn giúp tôi chất hành lý lên xe."}
+                ],
+                cautions: "늦은 시간이므로 환전소나 유심 카운터 영업시간 확인. Grab 앱 사용 시 **심야 할증** 및 차량 종류(Grab Car 7 Seater) 확인。", 
+                nearbyMart: "공항 내 미니마트 (VinMart)에서 간단한 음료 구매 가능. **GO! Mart(고마트)**는 영업 종료 시간 (보통 22:00) 후."
+            },
+            { day: 1, date: getDateString(18), time: "00:10 (익일)", activity: "🚖 호텔 이동 및 늦은 체크인", location: "하이안 리버프런트 호텔 (Hạian Riverfront Hotel)", 
+                mapLink: "https://www.google.com/maps/place/Hạian+Riverfront+Hotel/@16.06915,108.220197,17z/data=!3m1!4b1!4m6!3m5!1s0x314218318855a82f:0x5e5b3063544a0709!8m2!3d16.06915!4d108.2227719!16s%2Fg%2F11gb3rk2tx?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=하이안+리버프런트+호텔+후기", 
+                duration: "50m", points: ["프런트 데스크에 늦은 체크인(Late Check-in) 사전 고지", "간단히 정리 후 바로 취침하여 다음 날 일정 대비"],
+                phrases: [
+                    {kr: "[이름]으로 늦은 체크인 손님입니다.", vi: "Tôi là khách đến nhận phòng muộn dưới tên [Name]."},
+                    {kr: "짐을 도와줄 사람이 있나요?", vi: "Có ai giúp tôi mang hành lý không?"},
+                    {kr: "객실 와이파이 비밀번호는 무엇인가요?", vi: "Mật khẩu Wi-Fi cho phòng là gì?"},
+                    {kr: "트윈룸 두 개 예약 확인 부탁드립니다.", vi: "Vui lòng xác nhận đặt phòng hai phòng đôi (twin) của chúng tôi."},
+                    {kr: "생수는 어디서 찾을 수 있나요?", vi: "Chúng tôi có thể tìm nước đóng chai ở đâu?"},
+                    {kr: "보증금은 지금 지불할게요.", vi: "Tôi sẽ thanh toán tiền đặt cọc ngay bây giờ."},
+                    {kr: "호텔 정문은 몇 시에 닫나요?", vi: "Cửa chính của khách sạn đóng lúc mấy giờ?"},
+                    {kr: "방 키 카드를 추가로 부탁드려요.", vi: "Vui lòng cho tôi thêm một thẻ khóa phòng."},
+                    {kr: "저희가 매우 피곤합니다, 빠른 체크인 감사합니다.", vi: "Chúng tôi rất mệt, cảm ơn vì đã làm thủ tục nhận phòng nhanh chóng."},
+                    {kr: "안녕히 주무세요, 아침까지 방해하지 말아 주세요.", vi: "Chúc ngủ ngon, xin đừng làm phiền chúng tôi cho đến sáng."}
+                ],
+                cautions: "심야 체크인 시에도 여권 제출 및 보증금 (Deposit) 처리 필수. 프런트 직원에게 다음 날 조식 시간 재확인。", 
+            },
+            { day: 1, date: getDateString(18), time: "01:00 (익일)", activity: "😴 취침 및 휴식", location: "하이안 리버프런트 호텔 객실", 
+                mapLink: "https://www.google.com/maps/place/Hạian+Riverfront+Hotel/@16.06915,108.220197,17z/data=!3m1!4b1!4m6!3m5!1s0x314218318855a82f:0x5e5b3063544a0709!8m2!3d16.06915!4d108.2227719!16s%2Fg%2F11gb3rk2tx?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=하이안+리버프런트+호텔+침실", 
+                duration: "8h 00m", points: ["다음 날 다낭 시내 알찬 일정을 위해 충분한 숙면"],
+                phrases: [
+                    {kr: "오전 9시에 알람을 맞춰야 해요.", vi: "Tôi cần đặt báo thức lúc 9 giờ sáng."},
+                    {kr: "밤에도 강변 뷰가 아름답네요.", vi: "Cảnh sông về đêm cũng đẹp quá."},
+                    {kr: "커튼을 완전히 닫아 주세요.", vi: "Vui lòng kéo rèm cửa hoàn toàn."},
+                    {kr: "에어컨 (또는 선풍기)을 사용할게요.", vi: "Tôi sẽ dùng máy lạnh (hoặc quạt)."},
+                    {kr: "오늘 밤 잘 잤으면 좋겠어요.", vi: "Hy vọng chúng ta ngủ ngon đêm nay."},
+                    {kr: "메인 객실의 전등 스위치는 어디에 있나요?", vi: "Công tắc đèn chính của phòng ở đâu?"},
+                    {kr: "여분의 베개를 요청할 수 있나요?", vi: "Tôi có thể yêu cầu thêm gối không?"},
+                    {kr: "방 온도가 딱 좋아요.", vi: "Nhiệt độ phòng rất hoàn hảo."},
+                    {kr: "핸드폰 충전기를 꽂아야 해요.", vi: "Tôi cần cắm sạc điện thoại."},
+                    {kr: "내일 아침 식사가 기대돼요.", vi: "Tôi rất mong đợi bữa sáng ngày mai."}
+                ],
+                cautions: "늦은 밤에도 문단속 철저. 시차(-2시간)로 인해 생각보다 일찍 깰 수 있음."
+            },
+
+            // --- Day 2: 12/19 (목) - 다낭 시내 핵심 투어 (하이안 리버프런트 거점) ---
+            { day: 2, date: getDateString(19), time: "09:00", activity: "☕️ 조식 (호텔 뷔페) 및 한강변 산책", location: "하이안 리버프런트 호텔", 
+                mapLink: "https://www.google.com/maps/place/Hạian+Riverfront+Hotel/@16.06915,108.220197,17z/data=!3m1!4b1!4m6!3m5!1s0x314218318855a82f:0x5e5b3063544a0709!8m2!3d16.06915!4d108.2227719!16s%2Fg%2F11gb3rk2tx?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=하이안+리버프런트+호텔+조식+후기", 
+                duration: "1h 30m", points: ["한강 뷰를 보며 여유롭게 뷔페 조식 즐기기", "호텔 주변 한강변을 따라 걷는 아침 산책 (도보 5분)"],
+                phrases: [
+                    {kr: "강이 보이는 테이블로 부탁드려요.", vi: "Chúng tôi muốn một bàn có view sông."},
+                    {kr: "야채만 넣은 오믈렛을 만들어 주시겠어요?", vi: "Bạn có thể làm cho tôi một món trứng ốp la chỉ có rau không?"},
+                    {kr: "베트남 쌀국수(퍼) 코너는 어디에 있나요?", vi: "Quầy Phở Việt Nam ở đâu?"},
+                    {kr: "오늘 아침 커피가 진한가요?", vi: "Cà phê sáng nay có đậm không?"},
+                    {kr: "신선한 열대과일이 정말 맛있었어요.", vi: "Hoa quả nhiệt đới tươi rất ngon."},
+                    {kr: "조식 서비스는 몇 시에 끝나나요?", vi: "Bữa sáng phục vụ đến mấy giờ?"},
+                    {kr: "신선한 오렌지 주스 좀 더 주시겠어요?", vi: "Cho tôi thêm một ít nước cam tươi được không?"},
+                    {kr: "감사합니다, 음식이 훌륭해요.", vi: "Cảm ơn, đồ ăn rất tuyệt vời."},
+                    {kr: "산책을 위한 정문은 어디인가요?", vi: "Lối ra chính để đi dạo ở đâu?"},
+                    {kr: "단체 사진 찍기에 좋은 장소가 있나요?", vi: "Có chỗ nào đẹp để chụp ảnh nhóm không?"}
+                ],
+                cautions: "조식 시간에 늦지 않도록 유의. 호텔 조식은 쌀국수 코너가 핵심。", 
+                nearbyMart: "**GO! Mart(고마트)**: Grab으로 10분 이내 (다낭 시내 핵심 대형 마트)"
+            },
+            { day: 2, date: getDateString(19), time: "10:30", activity: "🛍️ 한 시장 (Han Market) 쇼핑 및 핑크 성당 관광", location: "Han Market & Da Nang Cathedral", 
+                mapLink: "https://www.google.com/maps/place/Chợ+Hàn/@16.0707784,108.2235924,17z/data=!3m1!4b1!4m6!3m5!1s0x314219a710f81d1b:0x5e8c25790d96522c!8m2!3d16.0707784!4d108.2261673!16s%2Fg%2F11b3w40c_v?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+한시장+아오자이+후기", 
+                duration: "2h 00m", points: ["**하이안 호텔에서 도보 5분 거리** (최적의 동선)", "아오자이 맞춤 제작 주문 (당일 수령 가능 여부 확인)", "핑크 성당은 한 시장 바로 옆, 포토 스팟"],
+                phrases: [
+                    {kr: "이 아오자이 세트는 얼마예요?", vi: "Bộ áo dài này giá bao nhiêu?"},
+                    {kr: "네 명 분을 사면 더 좋은 가격에 주실 수 있나요?", vi: "Nếu mua cho bốn người thì có được giá tốt hơn không?"},
+                    {kr: "내일 오후에 찾으러 오고 싶어요.", vi: "Tôi muốn lấy vào chiều mai."},
+                    {kr: "말린 망고는 어디서 찾을 수 있나요?", vi: "Tôi có thể tìm xoài sấy khô ở đâu?"},
+                    {kr: "핑크 성당이 지금 방문객에게 열려 있나요?", vi: "Nhà thờ màu hồng có mở cửa cho khách tham quan không?"},
+                    {kr: "계산할 때 잔돈이 있나요?", vi: "Bạn có tiền lẻ để thanh toán không?"},
+                    {kr: "이 소재가 아주 시원하고 편안하네요.", vi: "Chất liệu này rất mát và thoải mái."},
+                    {kr: "작은 기념품 네 개를 사고 싶어요.", vi: "Tôi muốn mua bốn món quà lưu niệm nhỏ."},
+                    {kr: "할인해 주셔서 감사합니다.", vi: "Cảm ơn bạn đã giảm giá."},
+                    {kr: "가장 가까운 콩카페는 어디인가요?", vi: "Cộng Cà Phê gần nhất ở đâu?"}
+                ],
+                cautions: "**흥정 필수** (처음 부르는 값의 50% 정도 제시), 성당 내부 관람은 미사 시간 확인。", 
+            },
+            { day: 2, date: getDateString(19), time: "12:30", activity: "🍜 점심 식사: 다낭 대표 국수 (분짜 또는 미꽝)", location: "분짜 584 (Bun Cha 584) 또는 미꽝 아 바 투이", 
+                mapLink: "https://www.google.com/maps/place/Bun+Cha+584+Đà+Nẵng/@16.0689955,108.225916,17z/data=!3m1!4b1!4m6!3m5!1s0x314219b1681a97f7:0x5e5b3063544a0709!8m2!3d16.0689955!4d108.2284909!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+분짜+584+미꽝+후기", 
+                duration: "1h 00m", points: ["하이안 호텔에서 Grab으로 10분 내 거리", "하노이식 분짜와 다낭식 미꽝 중 선택하여 현지식 점심 식사"],
+                phrases: [
+                    {kr: "분짜(또는 미꽝) 네 그릇 주세요.", vi: "Cho tôi bốn phần bún chả (hoặc mì quảng)."},
+                    {kr: "스프링롤 한 접시 추가할 수 있나요?", vi: "Chúng tôi có thể thêm một đĩa nem (gỏi cuốn) không?"},
+                    {kr: "소스를 덜 달게 해 주세요.", vi: "Làm ơn làm nước sốt bớt ngọt."},
+                    {kr: "고추가 매우 맵나요?", vi: "Ớt này có cay lắm không?"},
+                    {kr: "맛이 매우 신선하고 현지스러워요.", vi: "Món ăn này rất tươi và chuẩn vị địa phương."},
+                    {kr: "디저트 메뉴가 있나요?", vi: "Quán có món tráng miệng nào không?"},
+                    {kr: "시원한 음료 네 잔 부탁드립니다.", vi: "Cho chúng tôi bốn đồ uống lạnh, làm ơn."},
+                    {kr: "깨끗한 포크와 숟가락을 주시겠어요?", vi: "Bạn có thể cho chúng tôi nĩa và thìa sạch không?"},
+                    {kr: "총 계산서를 주세요.", vi: "Vui lòng cho tôi hóa đơn."},
+                    {kr: "빠른 서비스 감사합니다.", vi: "Cảm ơn vì dịch vụ nhanh chóng."}
+                ],
+                cautions: "분짜의 느억맘 소스는 호불호가 갈릴 수 있으니, 맛을 보고 조절. 현지 식당은 에어컨이 약할 수 있음。"
+            },
+            { day: 2, date: getDateString(19), time: "13:30", activity: "⛰️ 오행산 (마블 마운틴) 탐방", location: "Marble Mountains", 
+                mapLink: "https://www.google.com/maps/place/Ngũ+Hành+Sơn/@16.0076294,108.2483864,17z/data=!3m1!4b1!4m6!3m5!1s0x31420f1882d27771:0xf666b3f793b80b03!8m2!3d16.0076294!4d108.2509613!16s%2Fg%2F12534n1r5?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+오행산+현공동굴+후기", 
+                duration: "2h 30m", points: ["엘리베이터 이용 추천 (체력 안배)", "현공 동굴의 신비로운 채광이 포토 스팟", "논느억 비치 주변 구경 후 이동"],
+                phrases: [
+                    {kr: "엘리베이터와 입장권 네 장 주세요.", vi: "Cho tôi bốn vé thang máy và vé vào cửa."},
+                    {kr: "정상에서 가장 좋은 전망대는 어디인가요?", vi: "Điểm quan sát đẹp nhất từ trên đỉnh là ở đâu?"},
+                    {kr: "발밑을 조심하세요, 돌계단이 가파릅니다.", vi: "Cẩn thận bước chân, bậc thang đá dốc lắm."},
+                    {kr: "여기서 현공 동굴까지 얼마나 걸리나요?", vi: "Từ đây đến động Huyền Không mất bao lâu?"},
+                    {kr: "등반을 위해 물을 좀 사야 해요.", vi: "Chúng tôi cần mua một chút nước để leo lên."},
+                    {kr: "작은 가방을 맡길 안전한 장소가 있나요?", vi: "Có chỗ nào an toàn để gửi túi nhỏ không?"},
+                    {kr: "동굴 안의 온도가 시원하네요.", vi: "Nhiệt độ bên trong hang động thật mát mẻ."},
+                    {kr: "동굴 가이드를 추천해 주시겠어요?", vi: "Bạn có thể giới thiệu một hướng dẫn viên cho động không?"},
+                    {kr: "감사합니다, 이 곳은 매우 영적인 곳이네요.", vi: "Cảm ơn, nơi này rất linh thiêng."},
+                    {kr: "이 조각상이 대리석으로 만들어졌나요?", vi: "Tượng điêu khắc này có phải làm bằng đá cẩm thạch không?"}
+                ],
+                cautions: "엘리베이터 줄이 길 수 있음. 동굴 내부는 습하고 미끄러우니 편한 신발 필수。",
+                nearbyMart: "**GO! Mart(고마트) 시내점** : Grab으로 15분 거리"
+            },
+            { day: 2, date: getDateString(19), time: "16:00", activity: "🏖️ 미케 해변 (My Khe Beach) 휴식 및 카페", location: "My Khe Beach / 템플 다낭 (Temple Danang)", 
+                mapLink: "https://www.google.com/maps/place/Bãi+biển+Mỹ+Khê/@16.0647313,108.2435572,17z/data=!3m1!4b1!4m6!3m5!1s0x314217145b0a340b:0x7000787e74f85e49!8m2!3d16.0647313!4d108.2461321!16zL20vMDd2cjB4?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=미케+해변+템플+다낭+후기", 
+                duration: "2h 00m", points: ["해변가 럭셔리 카페에서 여유로운 시간 (템플 다낭 추천)", "리조트에서 해변까지 Grab으로 15분 이동"],
+                phrases: [
+                    {kr: "바다가 보이는 테이블로 부탁드려요.", vi: "Cho chúng tôi một bàn có view biển."},
+                    {kr: "제 커피를 덜 달게 해 주시겠어요?", vi: "Bạn có thể làm cà phê của tôi bớt ngọt không?"},
+                    {kr: "여기 현지 음료는 무엇이 있나요?", vi: "Ở đây có đồ uống địa phương nào không?"},
+                    {kr: "신선한 코코넛 워터가 있나요?", vi: "Có nước dừa tươi không?"},
+                    {kr: "비치 의자는 무료로 사용할 수 있나요?", vi: "Ghế bãi biển có được sử dụng miễn phí không?"},
+                    {kr: "시원한 스무디를 마시고 싶어요.", vi: "Tôi muốn uống một ly sinh tố mát lạnh."},
+                    {kr: "해변 끝까지 걸어가는 데 얼마나 걸리나요?", vi: "Đi bộ đến cuối bãi biển mất bao lâu?"},
+                    {kr: "맛있는 칵테일을 추천해 주세요.", vi: "Vui lòng giới thiệu một loại cocktail ngon."},
+                    {kr: "파도 소리가 정말 편안하네요.", vi: "Âm thanh sóng biển thật thư giãn."},
+                    {kr: "좋은 서비스 감사합니다.", vi: "Cảm ơn vì dịch vụ tốt."}
+                ],
+                cautions: "해변가에서 물건을 파는 상인들의 호객 행위에 단호하게 거절. 카페 이용 시 비치베드 사용 가능 여부 확인。"
+            },
+            { day: 2, date: getDateString(19), time: "18:00", activity: "🦞 저녁 식사: 럭셔리 씨푸드 레스토랑", location: "하이산 베 만 (Hai San Be Man)", 
+                mapLink: "https://www.google.com/maps/place/Hải+sản+Bé+Mặn/@16.0759082,108.2461321,17z/data=!3m1!4b1!4m6!3m5!1s0x3142183c5095d3a5:0x5e5b3063544a0709!8m2!3d16.0759082!4d108.248707!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=하이산+베만+씨푸드+후기", 
+                duration: "1h 30m", points: ["수조에서 해산물을 직접 골라 무게를 달고 요리법 선택 (흥정 가능)", "가리비, 새우, 랍스터 등 신선한 해산물 파티"],
+                phrases: [
+                    {kr: "이 랍스터는 1킬로그램당 얼마인가요?", vi: "Con tôm hùm này giá bao nhiêu một ký?"},
+                    {kr: "이것을 마늘 버터로 구워주세요.", vi: "Vui lòng nướng món này với bơ tỏi."},
+                    {kr: "이게 신선한지 확인해 주세요.", vi: "Làm ơn kiểm tra xem nó có tươi không."},
+                    {kr: "수조에서 생선을 고를 수 있나요?", vi: "Chúng tôi có thể chọn cá từ bể không?"},
+                    {kr: "음식 준비하는 데 얼마나 걸릴까요?", vi: "Món ăn sẽ được chuẩn bị trong bao lâu?"},
+                    {kr: "접시 네 개와 식기 네 세트가 필요해요.", vi: "Chúng tôi cần bốn đĩa và bốn bộ dao nĩa (đũa)."},
+                    {kr: "새우를 요리하는 가장 좋은 방법을 추천해 주세요.", vi: "Bạn có thể gợi ý cách nấu tôm ngon nhất không?"},
+                    {kr: "해산물 가격은 흥정이 가능한가요?", vi: "Giá hải sản có thể thương lượng được không?"},
+                    {kr: "이 해산물은 완벽하게 조리되었어요.", vi: "Hải sản này được nấu rất hoàn hảo."},
+                    {kr: "신용카드로 결제할게요.", vi: "Tôi sẽ thanh toán bằng thẻ tín dụng."}
+                ],
+                cautions: "**가격 확인 필수!** 무게를 달 때 눈으로 확인하고, 주문서를 꼭 보관。"
+            },
+            { day: 2, date: getDateString(19), time: "19:30", activity: "🌉 드래곤 브릿지 (용다리) 야경 감상 및 산책", location: "Dragon Bridge Da Nang", 
+                mapLink: "https://www.google.com/maps/place/Cầu+Rồng/@16.0601366,108.2241619,17z/data=!3m1!4b1!4m6!3m5!1s0x31421833758b29f7:0x5e5b3063544a0709!8m2!3d16.0601366!4d108.2267368!16zL20vMDd2cjB4?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+용다리+야경+후기", 
+                duration: "1h 00m", points: ["**하이안 호텔에서 도보 10분** (리버프런트의 장점)", "화려한 LED 조명 감상. (토, 일요일 21:00 불쇼/물쇼)"],
+                phrases: [
+                    {kr: "불꽃놀이와 물 쇼는 몇 시에 하나요?", vi: "Màn trình diễn phun lửa và nước lúc mấy giờ?"},
+                    {kr: "이 근처에서 시원한 맥주를 어디서 살 수 있나요?", vi: "Tôi có thể mua bia lạnh ở đâu gần đây?"},
+                    {kr: "안전하게 걸을 수 있는 길이 있나요?", vi: "Có lối đi an toàn để đi bộ không?"},
+                    {kr: "이 다리는 밤에 정말 멋져 보여요.", vi: "Cây cầu này trông thật tuyệt vời vào ban đêm."},
+                    {kr: "이 다리는 언제 건설되었나요?", vi: "Cây cầu này được xây dựng khi nào?"},
+                    {kr: "제 아내와 저의 사진을 찍어주시겠어요?", vi: "Bạn có thể chụp ảnh giúp vợ chồng tôi không?"},
+                    {kr: "다리 반대편으로 가야 해요.", vi: "Chúng tôi cần đi sang phía bên kia cầu."},
+                    {kr: "여기서 길을 건널 수 있나요?", vi: "Có thể băng qua đường ở đây không?"},
+                    {kr: "오토바이 조심하세요!", vi: "Coi chừng xe máy!"},
+                    {kr: "관람 장소를 추천해 주셔서 감사합니다.", vi: "Cảm ơn đã giới thiệu địa điểm xem."}
+                ],
+                cautions: "주말이 아니므로 쇼는 없으나, 야경만으로도 충분히 아름다움. 강변 오토바이 소음 주의。"
+            },
+            { day: 2, date: getDateString(19), time: "20:30", activity: "💆🏻‍♀️ 저녁 마사지 및 호텔 복귀", location: "다낭 시내 마사지샵 (미정, 현지 평점 검색)", 
+                mapLink: "https://www.google.com/maps/search/하이안+리버프런트+호텔+주변+커플+마사지/@16.06915,108.220197,17z/data=!3m1!4b1?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+하이안+호텔+주변+마사지+후기", 
+                duration: "2h 00m", points: ["하이안 호텔 근처 평점 좋은 마사지샵 선택", "발 마사지 또는 전신 아로마 마사지"],
+                phrases: [
+                    {kr: "네 명을 위한 커플 룸이 필요해요.", vi: "Chúng tôi cần một phòng cặp đôi cho bốn người."},
+                    {kr: "등과 어깨를 집중적으로 마사지해 주세요.", vi: "Vui lòng tập trung massage lưng và vai cho tôi."},
+                    {kr: "마사지는 얼마나 걸리나요?", vi: "Thời gian massage là bao lâu?"},
+                    {kr: "압력을 좀 더 약하게 해 주시겠어요?", vi: "Làm ơn làm lực nhẹ hơn một chút được không?"},
+                    {kr: "아로마 오일 마사지를 예약하고 싶어요.", vi: "Tôi muốn đặt một suất massage tinh dầu."},
+                    {kr: "발 마사지 패키지가 있나요?", vi: "Ở đây có gói massage chân không?"},
+                    {kr: "제 소지품은 어디에 두어야 하나요?", vi: "Tôi nên để đồ dùng cá nhân ở đâu?"},
+                    {kr: "감사합니다, 정말 편안했어요.", vi: "Cảm ơn, tôi cảm thấy rất thư giãn."},
+                    {kr: "팁은 얼마를 드려야 하나요?", vi: "Tôi nên đưa tiền tip bao nhiêu?"},
+                    {kr: "저희를 위해 그랩을 불러주시겠어요?", vi: "Bạn có thể gọi Grab giúp chúng tôi không?"}
+                ],
+                cautions: "팁은 마사지사에게 직접 전달 (보통 50,000 ~ 100,000 VND). 마사지 후 바로 호텔로 복귀하여 휴식。"
+            },
+
+            // --- Day 3: 12/20 (금) - 다낭 유적지 -> 호이안 이동 ---
+            { day: 3, date: getDateString(20), time: "09:00", activity: "☕️ 조식 (호텔 뷔페) 후 영흥사 (링엄사) 이동", location: "Linh Ung Pagoda (링엄사)", 
+                mapLink: "https://www.google.com/maps/place/Chùa+Linh+Ứng/@16.1042502,108.2721473,17z/data=!3m1!4b1!4m6!3m5!1s0x314217f259fe789f:0x39ed4506c11b1526!8m2!3d16.1042502!4d108.2747222!16s%2Fg%2F122756d1?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+영흥사+해수관음상+후기", 
+                duration: "1h 30m", points: ["67m 높이의 거대한 해수관음상 앞에서 사진 촬영 (베스트 포토존)", "다낭 시내와 바다가 한눈에 보이는 뷰 포인트"],
+                phrases: [
+                    {kr: "사원은 몇 시에 문을 여나요?", vi: "Chùa mở cửa lúc mấy giờ?"},
+                    {kr: "입장료가 있나요?", vi: "Có phải trả phí vào cửa không?"},
+                    {kr: "가장 좋은 전망은 어디에서 볼 수 있나요?", vi: "Tôi có thể xem cảnh đẹp nhất ở đâu?"},
+                    {kr: "저희는 이 동상 앞에서 사진을 찍고 싶어요.", vi: "Chúng tôi muốn chụp ảnh trước tượng này."},
+                    {kr: "사원 안에서는 조용히 해 주세요.", vi: "Vui lòng giữ im lặng trong chùa."},
+                    {kr: "여기는 택시로 올 수 있는 곳인가요?", vi: "Nơi này có thể đến bằng taxi không?"},
+                    {kr: "이 동상의 의미는 무엇인가요?", vi: "Tượng này có ý nghĩa gì?"},
+                    {kr: "주차장은 어디인가요?", vi: "Khu vực đỗ xe ở đâu?"},
+                    {kr: "기념품을 사고 싶어요.", vi: "Tôi muốn mua một món quà lưu niệm."},
+                    {kr: "평화로운 경험에 감사드립니다.", vi: "Cảm ơn vì trải nghiệm bình yên này."}
+                ],
+                cautions: "사원 방문 시 짧은 바지/치마, 민소매 복장 금지 (랩스커트 또는 가디건 지참)。"
+            },
+            { day: 3, date: getDateString(20), time: "11:00", activity: "🚖 하이안 호텔 체크아웃 및 호이안 이동 (짐 보관)", location: "하이안 리버프런트 호텔 → 호이안 라 시에스타", 
+                mapLink: "https://www.google.com/maps/place/La+Siesta+Hoi+An+Resort+%26+Spa/@15.8753177,108.330883,17z/data=!3m1!4b1!4m6!3m5!1s0x31420f1882d27771:0xf666b3f793b80b03!8m2!3d15.8753177!4d108.3334579!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+호이안+프라이빗+택시+후기", 
+                duration: "1h 00m", points: ["하이안 호텔에서 체크아웃 후 Grab 또는 프라이빗 택시 예약", "호이안 라 시에스타 리조트 이동 (약 40분 소요)"],
+                phrases: [
+                    {kr: "체크아웃 준비가 되었고, 호이안 라 시에스타 가는 택시가 필요해요.", vi: "Chúng tôi đã sẵn sàng trả phòng, cần taxi đến La Siesta Hội An."},
+                    {kr: "호이안까지 네 명 요금은 얼마인가요?", vi: "Giá cước taxi cho bốn người đi Hội An là bao nhiêu?"},
+                    {kr: "라 시에스타 호이안 리조트로 바로 가 주세요.", vi: "Vui lòng lái xe thẳng đến La Siesta Hội An Resort."},
+                    {kr: "가는 길에 잠깐 쉴 수 있나요?", vi: "Chúng tôi có thể dừng lại nghỉ ngơi một lát trên đường không?"},
+                    {kr: "보증금은 신용카드로 지불했어요.", vi: "Chúng tôi đã thanh toán tiền đặt cọc bằng thẻ tín dụng."},
+                    {kr: "차에 저희 짐을 모두 실을 공간이 충분한지 확인해 주세요.", vi: "Vui lòng kiểm tra xem xe có đủ chỗ để chất tất cả hành lý của chúng tôi không."},
+                    {kr: "호이안 가는 길에 통행료가 있나요?", vi: "Có phí cầu đường trên đường đến Hội An không?"},
+                    {kr: "온도가 올라가고 있어요, 에어컨을 계속 켜 주세요.", vi: "Nhiệt độ đang tăng, vui lòng bật máy lạnh liên tục."},
+                    {kr: "하이안 리버프런트에서의 즐거운 서비스 감사합니다.", vi: "Cảm ơn vì dịch vụ tuyệt vời tại Hạian Riverfront."},
+                    {kr: "운전은 얼마나 걸릴 것으로 예상되나요?", vi: "Dự kiến lái xe mất bao lâu?"}
+                ],
+                cautions: "다낭-호이안 이동 시 택시 기사와 요금 확정 필수 (미터기 대신 정찰제 권장).",
+                nearbyMart: "**GO! Mart(고마트)**: 다낭 시내에 있으니, 필요하면 체크아웃 전 이용。"
+            },
+            { day: 3, date: getDateString(20), time: "12:00", activity: "🏨 호이안 리조트 체크인 및 짐 보관", location: "La Siesta Hoi An Resort & Spa", 
+                mapLink: "https://www.google.com/maps/place/La+Siesta+Hoi+An+Resort+%26+Spa/@15.8753177,108.330883,17z/data=!3m1!4b1!4m6!3m5!1s0x31420f1882d27771:0xf666b3f793b80b03!8m2!3d15.8753177!4d108.3334579!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=라+시에스타+호이안+리조트+후기", 
+                duration: "1h 00m", points: ["리조트에 짐을 맡긴 후 올드타운으로 이동", "리조트 셔틀버스 또는 자전거 대여 가능 여부 확인"],
+                phrases: [
+                    {kr: "객실 준비가 될 때까지 짐을 여기에 맡기고 싶어요.", vi: "Tôi muốn gửi hành lý ở đây cho đến khi phòng sẵn sàng."},
+                    {kr: "올드타운으로 가는 무료 셔틀 서비스가 있나요?", vi: "Có dịch vụ xe buýt miễn phí đến Phố cổ không?"},
+                    {kr: "자전거 네 대를 빌릴 수 있나요?", vi: "Chúng tôi có thể thuê bốn chiếc xe đạp không?"},
+                    {kr: "다음 셔틀버스는 몇 시인가요?", vi: "Chuyến xe buýt tiếp theo là lúc mấy giờ?"},
+                    {kr: "논밭 뷰가 사랑스럽네요.", vi: "Cảnh cánh đồng lúa thật đẹp."},
+                    {kr: "자전거로 올드타운까지 얼마나 걸리나요?", vi: "Đi xe đạp đến Phố cổ mất bao lâu?"},
+                    {kr: "저희는 오늘 저녁에 완전히 체크인 할게요.", vi: "Chúng tôi sẽ nhận phòng đầy đủ vào tối nay."},
+                    {kr: "저희 짐을 안전하게 보관해 주세요.", vi: "Vui lòng bảo quản hành lý của chúng tôi an toàn."},
+                    {kr: "호텔 근처에 점심 먹을 좋은 곳이 있나요?", vi: "Gần khách sạn có chỗ nào ăn trưa ngon không?"},
+                    {kr: "감사합니다, 나중에 다시 올게요.", vi: "Cảm ơn, lát nữa chúng tôi sẽ quay lại."}
+                ],
+                cautions: "짐 보관 시 짐표 (Claim Tag)를 꼭 보관. 올드타운까지 자전거 이용 시 편함。"
+            },
+            { day: 3, date: getDateString(20), time: "13:00", activity: "🍲 점심 식사: 호이안 대표 음식 (까오라우 - Cao Lầu)", location: "까오라우 탄 (Cao Lầu Thanh)", 
+                mapLink: "https://www.google.com/maps/place/Quán+Ăn+Cao+Lầu+Thanh/@15.8789396,108.3283253,17z/data=!3m1!4b1!4m6!3m5!1s0x31420f1710972e25:0x5e5b3063544a0709!8m2!3d15.8789396!4d108.330898!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=호이안+까오라우+탄+맛집+후기", 
+                duration: "1h 00m", points: ["호이안에서만 맛볼 수 있는 특별한 면 요리. 국물이 적은 것이 특징.", "올드타운으로 이동하기 전 든든하게 식사"],
+                phrases: [
+                    {kr: "까오라우 네 그릇 주세요.", vi: "Cho tôi bốn phần Cao Lầu."},
+                    {kr: "이 국수는 독특하네요, 어디서 만들어진 건가요?", vi: "Món mì này đặc biệt quá, được làm từ đâu vậy?"},
+                    {kr: "영어 메뉴판이 있나요?", vi: "Quán có menu bằng tiếng Anh không?"},
+                    {kr: "밖에 있는 테이블에 앉을 수 있나요?", vi: "Chúng tôi có thể ngồi ở bàn bên ngoài không?"},
+                    {kr: "이것은 돼지고기로 만든 건가요, 닭고기로 만든 건가요?", vi: "Món này được làm bằng thịt lợn hay thịt gà?"},
+                    {kr: "현지 맥주 한 잔 주시겠어요?", vi: "Cho tôi một ly bia địa phương được không?"},
+                    {kr: "추천하는 곁들임 요리가 있나요?", vi: "Bạn có món ăn kèm nào gợi ý không?"},
+                    {kr: "이 식당은 분위기가 아주 전통적이네요.", vi: "Quán ăn này có không khí rất truyền thống."},
+                    {kr: "맛이 정말 훌륭하고 현지스러워요.", vi: "Mùi vị thật tuyệt vời và chuẩn vị địa phương."},
+                    {kr: "총 계산서를 주세요.", vi: "Vui lòng cho tôi hóa đơn."}
+                ],
+                cautions: "현지 식당은 에어컨이 없을 수 있음. 물티슈 유료일 수 있음。"
+            },
+            { day: 3, date: getDateString(20), time: "14:00", activity: "🏛️ 호이안 고대 도시 (올드타운) 탐방 및 관광", location: "Hoi An Ancient Town", 
+                mapLink: "https://www.google.com/maps/place/Hội+An+Ancient+Town/@15.8797177,108.3275757,17z/data=!3m1!4b1!4m6!3m5!1s0x31420e9803362177:0x5e5b3063544a0709!8m2!3d15.8797177!4d108.3301506!16s%2Fg%2F122756d1?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=호이안+올드타운+낮+후기", 
+                duration: "2h 30m", points: ["**입장권 구매 필수** (5곳의 유적지 입장 가능)", "노란 건물과 등불 아래서 부부 스냅 사진 찍기"],
+                phrases: [
+                    {kr: "입장권은 어디서 살 수 있나요?", vi: "Tôi có thể mua vé vào cửa ở đâu?"},
+                    {kr: "통합 티켓은 얼마인가요?", vi: "Vé tổng hợp giá bao nhiêu?"},
+                    {kr: "특정 경로를 추천해 주시겠어요?", vi: "Bạn có thể gợi ý một tuyến đường cụ thể không?"},
+                    {kr: "여기서 자전거를 타도 괜찮나요?", vi: "Tôi có thể đi xe đạp ở đây không?"},
+                    {kr: "이 노란 벽이 멋진 포토 스팟이네요.", vi: "Bức tường màu vàng này là một điểm chụp ảnh tuyệt vời."},
+                    {kr: "재단사 상점 구역은 어디에 있나요?", vi: "Khu vực các cửa hàng may đo ở đâu?"},
+                    {kr: "좋은 커피 마실 곳을 찾고 있어요.", vi: "Chúng tôi đang tìm một nơi đẹp để uống cà phê."},
+                    {kr: "씨클로(인력거)를 조심하세요.", vi: "Hãy cẩn thận với xe xích lô!"},
+                    {kr: "이 마을의 역사는 무엇인가요?", vi: "Lịch sử của thị trấn này là gì?"},
+                    {kr: "지도 감사합니다.", vi: "Cảm ơn vì bản đồ."}
+                ],
+                cautions: "낮에는 매우 더울 수 있으니 모자, 선글라스 필수. 자전거/오토바이를 조심. 물 상인 주의。"
+            },
+            { day: 3, date: getDateString(20), time: "16:30", activity: "🏮 일본인 내원교 및 풍흥 고가", location: "Japanese Covered Bridge / Phung Hung House", 
+                mapLink: "https://www.google.com/maps/place/Cầu+Chùa+Hội+An/@15.8769396,108.3275757,17z/data=!3m1!4b1!4m6!3m5!1s0x31420f1882d27771:0xf666b3f793b80b03!8m2!3d15.8769396!4d108.3301506!16s%2Fg%2F122756d1?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=호이안+일본인+내원교+후기", 
+                duration: "1h 30m", points: ["호이안의 상징. 올드타운 입장권으로 내부 관람 가능.", "풍흥 고가: 200년 된 전통 가옥 내부 관람"],
+                phrases: [
+                    {kr: "이 다리의 역사는 무엇인가요?", vi: "Lịch sử của cây cầu này là gì?"},
+                    {kr: "근처에 기념품 가게가 있나요?", vi: "Có cửa hàng lưu niệm nào gần đây không?"},
+                    {kr: "이 전통 가옥은 얼마나 오래되었나요?", vi: "Ngôi nhà truyền thống này bao nhiêu tuổi rồi?"},
+                    {kr: "이 다리를 걸어서 건널 수 있나요?", vi: "Chúng tôi có thể đi bộ qua cầu không?"},
+                    {kr: "건축의 세부 사항은 어디서 볼 수 있나요?", vi: "Tôi có thể xem chi tiết kiến trúc ở đâu?"},
+                    {kr: "지붕의 조각들이 매우 섬세하네요.", vi: "Các bức chạm khắc trên mái nhà rất tinh xảo."},
+                    {kr: "일몰 때 조명이 더 멋진가요?", vi: "Ánh sáng lúc hoàng hôn có đẹp hơn không?"},
+                    {kr: "풍흥 고가는 어떻게 찾을 수 있나요?", vi: "Làm thế nào để tôi tìm thấy Nhà Phùng Hưng?"},
+                    {kr: "사람이 많으니 조심하세요.", vi: "Xin hãy cẩn thận vì có rất đông người."},
+                    {kr: "설명 감사합니다.", vi: "Cảm ơn vì đã giải thích."}
+                ],
+                cautions: "다리 위는 매우 혼잡하니, 사진 촬영 시 다른 관광객에게 방해되지 않도록 주의。"
+            },
+            { day: 3, date: getDateString(20), time: "18:00", activity: "☕️ 올드타운 카페 휴식 및 노을 감상", location: "파이포 커피 (Faifo Coffee) 루프탑", 
+                mapLink: "https://www.google.com/maps/place/Faifo+Coffee/@15.8778396,108.3263253,17z/data=!3m1!4b1!4m6!3m5!1s0x31420f1710972e25:0x5e5b3063544a0709!8m2!3d15.8778396!4d108.3289002!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=파이포+커피+루프탑+노을+후기", 
+                duration: "1h 00m", points: ["올드타운 전체가 내려다보이는 루프탑 뷰 만끽", "베트남 연유 커피 (카페 쓰어 다) 또는 에그 커피 추천"],
+                phrases: [
+                    {kr: "루프탑 테라스로 올라갈 수 있나요?", vi: "Chúng tôi có thể lên sân thượng không?"},
+                    {kr: "이 베트남 커피는 얼마나 진한가요?", vi: "Cà phê Việt Nam này có đậm không?"},
+                    {kr: "페이스트리나 간식이 있나요?", vi: "Quán có bánh ngọt hay đồ ăn nhẹ không?"},
+                    {kr: "에그 커피 네 잔 주문할게요.", vi: "Cho chúng tôi bốn ly cà phê trứng."},
+                    {kr: "이곳이 올드타운 최고의 전망이네요.", vi: "Đây là quang cảnh tuyệt nhất của Phố cổ."},
+                    {kr: "여기 앉는 곳은 편안한가요?", vi: "Chỗ ngồi ở đây có thoải mái không?"},
+                    {kr: "저희를 위해 일몰 사진을 찍어주시겠어요?", vi: "Bạn có thể chụp ảnh hoàng hôn giúp chúng tôi không?"},
+                    {kr: "몇 시에 문을 닫나요?", vi: "Mấy giờ quán đóng cửa?"},
+                    {kr: "핸드폰을 충전할 곳이 필요해요.", vi: "Tôi cần chỗ để sạc điện thoại."},
+                    {kr: "에어컨 바람이 정말 시원하네요.", vi: "Hệ thống điều hòa rất mát mẻ."}
+                ],
+                cautions: "루프탑 계단이 가파를 수 있으니 조심. 늦은 오후에는 자리가 없을 수 있음。"
+            },
+            { day: 3, date: getDateString(20), time: "19:00", activity: "🏮 저녁 식사 및 등불 야경 감상", location: "모닝글로리 (Morning Glory) 또는 미스 리 카페 (Miss Ly Cafe)", 
+                mapLink: "https://www.google.com/maps/place/Morning+Glory+Signature/@15.8797177,108.3275757,17z/data=!3m1!4b1!4m6!3m5!1s0x31420f1710972e25:0x5e5b3063544a0709!8m2!3d15.8797177!4d108.3301506!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=호이안+모닝글로리+미스리+후기+사진", 
+                duration: "2h 00m", points: ["수많은 등불이 켜지는 **해 질 녘**이 가장 아름다움", "호이안 3대 음식 (화이트 로즈, 반쎄오, 까오라우)을 코스로 즐기기"],
+                phrases: [
+                    {kr: "오늘 밤 등불이 정말 아름답네요!", vi: "Đèn lồng tối nay thật là đẹp!"},
+                    {kr: "화이트 로즈와 튀긴 완탕을 주문하고 싶어요.", vi: "Tôi muốn gọi món Bánh Hoa Hồng Trắng và Hoành Thánh Chiên."},
+                    {kr: "현지 베트남 와인을 추천해 주시겠어요?", vi: "Bạn có thể giới thiệu một loại rượu vang Việt Nam địa phương không?"},
+                    {kr: "저녁 식사 예약을 해야 하나요?", vi: "Chúng tôi có cần đặt bàn trước cho bữa tối không?"},
+                    {kr: "저희는 기념일을 축하하고 있어요.", vi: "Chúng tôi đang kỷ niệm ngày cưới (hoặc ngày kỷ niệm)."},
+                    {kr: "요리가 동시에 나올 수 있도록 해 주세요.", vi: "Vui lòng phục vụ các món ăn cùng một lúc."},
+                    {kr: "분위기가 정말 로맨틱해요.", vi: "Không khí thật lãng mạn."},
+                    {kr: "등불을 보기 가장 좋은 장소는 어디인가요?", vi: "Chỗ nào tốt nhất để ngắm đèn lồng?"},
+                    {kr: "훌륭한 식사 감사합니다.", vi: "Cảm ơn vì bữa ăn tuyệt vời."},
+                    {kr: "위층 좌석 공간이 있나요?", vi: "Có khu vực chỗ ngồi ở tầng trên không?"}
+                ],
+                cautions: "인기 식당이므로 **사전 예약**이 필요. 야경 시 소매치기 주의。"
+            },
+            { day: 3, date: getDateString(20), time: "21:00", activity: "🛶 투본강 소원 배 띄우기 및 야시장", location: "Thu Bon River & Hoi An Night Market", 
+                mapLink: "https://www.google.com/maps/place/Hội+An+Ancient+Town/@15.8797177,108.3275757,17z/data=!3m1!4b1!4m6!3m5!1s0x31420e9803362177:0x5e5b3063544a0709!8m2!3d15.8797177!4d108.3301506!16s%2Fg%2F122756d1?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=호이안+투본강+소원배+후기", 
+                duration: "1h 30m", points: ["부부끼리 소원을 빌며 작은 초롱불을 강에 띄우는 낭만적인 체험", "흥정을 통해 저렴하게 배를 탈 수 있음. 야시장 구경."],
+                phrases: [
+                    {kr: "네 명이 보트 타는 데 얼마예요?", vi: "Đi thuyền cho bốn người giá bao nhiêu?"},
+                    {kr: "강에 등불을 띄울 수 있나요?", vi: "Chúng tôi có thể thả đèn lồng trên sông không?"},
+                    {kr: "배 타는 시간은 얼마나 되나요?", vi: "Chuyến đi thuyền kéo dài bao lâu?"},
+                    {kr: "저희는 짧게만 타고 싶어요.", vi: "Chúng tôi chỉ muốn đi một đoạn ngắn thôi."},
+                    {kr: "사진 찍을 때까지 기다려 주세요.", vi: "Vui lòng đợi chúng tôi chụp ảnh."},
+                    {kr: "가격 흥정이 가능한가요?", vi: "Có thể thương lượng giá không?"},
+                    {kr: "이것은 정말 로맨틱한 경험이네요.", vi: "Đây là một trải nghiệm rất lãng mạn."},
+                    {kr: "잠시 노 젓는 것을 멈춰 주시겠어요?", vi: "Bạn có thể dừng chèo thuyền một lát không?"},
+                    {kr: "등불 값은 어디서 지불하나요?", vi: "Chúng tôi trả tiền đèn lồng ở đâu?"},
+                    {kr: "아름다운 풍경 감사합니다.", vi: "Cảm ơn vì khung cảnh tuyệt đẹp."}
+                ],
+                cautions: "호객꾼이 많으니, 가격을 명확히 합의 (약 100,000 ~ 200,000 VND) 후 탑승. 야시장은 현금 필수。"
+            },
+
+            // --- Day 4: 12/21 (토) - 호이안 문화 체험 및 다낭 복귀 ---
+            { day: 4, date: getDateString(21), time: "09:30", activity: "🧑‍🍳 호이안 쿠킹 클래스 참가 (점심 포함)", location: "에코 쿠킹 클래스 (Eco Cooking Class)", 
+                mapLink: "https://www.google.com/maps/search/호이안+쿠킹클래스/@15.8769396,108.3275757,17z/data=!3m1!4b1?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=호이안+에코+쿠킹+클래스+후기", 
+                duration: "3h 00m", points: ["현지 시장에서 재료 구매 (시장 투어 포함 시)", "반미, 분짜, 스프링롤 등 베트남 요리 직접 만들기 체험"],
+                phrases: [
+                    {kr: "신선한 생선은 어디서 찾을 수 있나요?", vi: "Tôi có thể tìm cá tươi ở đâu?"},
+                    {kr: "스프링롤 마는 방법을 보여주시겠어요?", vi: "Bạn có thể chỉ cho tôi cách cuộn chả giò không?"},
+                    {kr: "이 소스 맛이 정말 놀랍네요!", vi: "Nước sốt này ngon tuyệt vời!"},
+                    {kr: "이 허브는 영어로 무엇이라고 불리나요?", vi: "Loại rau thơm này tiếng Anh gọi là gì?"},
+                    {kr: "요리하는 것이 정말 재미있어요.", vi: "Tôi cảm thấy rất vui khi nấu ăn."},
+                    {kr: "이것을 얼마나 오래 요리해야 하나요?", vi: "Tôi nên nấu món này trong bao lâu?"},
+                    {kr: "레시피를 메모해도 될까요?", vi: "Tôi có thể ghi lại công thức không?"},
+                    {kr: "가르쳐 주셔서 감사합니다.", vi: "Cảm ơn bạn đã dạy chúng tôi."},
+                    {kr: "비밀 재료가 있나요?", vi: "Có bí quyết gia vị nào không?"},
+                    {kr: "음식을 맛볼 준비가 되었어요!", vi: "Chúng tôi đã sẵn sàng nếm thử món ăn rồi!"}
+                ],
+                cautions: "손을 자주 씻고, 식재료 위생에 주의. 아침 일찍 시작하므로 컨디션 조절。"
+            },
+            { day: 4, date: getDateString(21), time: "12:30", activity: "🍚 점심 식사 (쿠킹 클래스 결과물) 및 리조트 복귀", location: "쿠킹 클래스 장소 → 라 시에스타 리조트", 
+                mapLink: "https://www.google.com/maps/place/La+Siesta+Hoi+An+Resort+%26+Spa/@15.8753177,108.330883,17z/data=!3m1!4b1!4m6!3m5!1s0x31420f1882d27771:0xf666b3f793b80b03!8m2!3d15.8753177!4d108.3334579!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=쿠킹+클래스+완성작+사진", 
+                duration: "1h 30m", points: ["직접 만든 음식 시식 후, 짐을 찾기 위해 리조트로 복귀"],
+                phrases: [
+                    {kr: "음식을 너무 많이 만들었어요! 포장해 갈 수 있나요?", vi: "Chúng tôi làm quá nhiều món ăn! Có thể gói mang đi không?"},
+                    {kr: "모든 것이 완벽하게 양념되었어요.", vi: "Mọi thứ đều được nêm nếm hoàn hảo."},
+                    {kr: "훌륭한 수업 감사합니다!", vi: "Cảm ơn vì buổi học tuyệt vời!"},
+                    {kr: "제가 직접 만들었다는 게 놀랍네요.", vi: "Tôi rất ngạc nhiên vì tôi tự làm được món này."},
+                    {kr: "레시피 카드를 받을 수 있을까요?", vi: "Tôi có thể nhận thẻ công thức nấu ăn không?"},
+                    {kr: "이건 가게에서 산 것보다 훨씬 맛있어요.", vi: "Món này ngon hơn nhiều so với mua ở ngoài."},
+                    {kr: "남은 음식을 담을 작은 상자가 있나요?", vi: "Có hộp nhỏ để đựng đồ ăn thừa không?"},
+                    {kr: "집에서 이 레시피를 시도해 볼 거예요.", vi: "Tôi sẽ thử công thức này ở nhà."},
+                    {kr: "우리 식당을 열어야겠어요!", vi: "Chúng ta nên mở một nhà hàng!"},
+                    {kr: "좋은 현지 요리 학교를 추천해 주세요.", vi: "Vui lòng giới thiệu một trường dạy nấu ăn địa phương tốt."}
+                ],
+                cautions: "과식 주의! 클래스에서 만든 음식이 점심이 됩니다。"
+            },
+            { day: 4, date: getDateString(21), time: "14:00", activity: "🚖 호이안 체크아웃 및 다낭 호텔 복귀/짐 정리", location: "라 시에스타 리조트 → 하이안 리버프런트 호텔", 
+                mapLink: "https://www.google.com/maps/place/Hạian+Riverfront+Hotel/@16.06915,108.220197,17z/data=!3m1!4b1!4m6!3m5!1s0x314218318855a82f:0x5e5b3063544a0709!8m2!3d16.06915!4d108.2227719!16s%2Fg%2F11gb3rk2tx?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=호이안+다낭+이동+후기+사진", 
+                duration: "1h 30m", points: ["라 시에스타 리조트 체크아웃 및 짐 찾기", "Grab 또는 프라이빗 택시로 다낭 하이안 호텔 복귀"],
+                phrases: [
+                    {kr: "지금 체크아웃하고 다낭 하이안 호텔 가는 택시가 필요해요.", vi: "Chúng tôi trả phòng bây giờ và cần taxi đến khách sạn Hạian Đà Nẵng."},
+                    {kr: "보관소에서 저희 짐을 가져다주시겠어요?", vi: "Bạn có thể mang hành lý của chúng tôi từ phòng gửi đồ ra không?"},
+                    {kr: "최종 계산서 확인 부탁드립니다.", vi: "Vui lòng xác nhận hóa đơn cuối cùng."},
+                    {kr: "오늘 오후 다낭으로 가는 길이 막히나요?", vi: "Chiều nay đường đi Đà Nẵng có bị kẹt xe không?"},
+                    {kr: "네 명을 위한 넓은 차가 필요해요.", vi: "Chúng tôi cần một chiếc xe rộng rãi cho bốn người."},
+                    {kr: "호이안에서 즐거운 숙박 감사합니다.", vi: "Cảm ơn vì đã cho chúng tôi một kỳ nghỉ tuyệt vời ở Hội An."},
+                    {kr: "택시 요금을 카드로 지불할 수 있나요?", vi: "Tôi có thể thanh toán tiền taxi bằng thẻ không?"},
+                    {kr: "안전하게 운전해 주세요.", vi: "Vui lòng lái xe an toàn."},
+                    {kr: "차로 얼마나 걸리나요?", vi: "Đi xe mất bao lâu?"},
+                    {kr: "오후 3시쯤 하이안 리버프런트 호텔에 도착할 거예요.", vi: "Chúng tôi sẽ đến Hạian Riverfront Hotel khoảng 3 giờ chiều."}
+                ],
+                cautions: "이동 중 교통 체증이 있을 수 있으니 여유롭게 출발. 다낭 호텔에 도착 후 짐 정리 및 휴식。"
+            },
+            { day: 4, date: getDateString(21), time: "15:30", activity: "🏊🏻‍♀️ 호텔 수영장 또는 루프탑 휴식", location: "하이안 리버프런트 호텔", 
+                mapLink: "https://www.google.com/maps/place/Hạian+Riverfront+Hotel/@16.06915,108.220197,17z/data=!3m1!4b1!4m6!3m5!1s0x314218318855a82f:0x5e5b3063544a0709!8m2!3d16.06915!4d108.2227719!16s%2Fg%2F11gb3rk2tx?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=하이안+리버프런트+호텔+수영장+사진", 
+                duration: "2h 30m", points: ["다낭 호텔 수영장 또는 루프탑 바에서 여유로운 오후", "저녁 비행을 위한 체력 비축 및 재정비"],
+                phrases: [
+                    {kr: "호텔 수영장은 어디에 위치해 있나요?", vi: "Hồ bơi khách sạn nằm ở đâu?"},
+                    {kr: "루프탑 바는 몇 시에 열어요?", vi: "Quầy bar trên tầng thượng mở cửa lúc mấy giờ?"},
+                    {kr: "여기서 수영장 타월을 받을 수 있나요?", vi: "Chúng tôi có thể lấy khăn tắm hồ bơi ở đây không?"},
+                    {kr: "편안한 선 라운지가 필요해요.", vi: "Chúng tôi cần một ghế tắm nắng thoải mái."},
+                    {kr: "현지 과일 스무디를 주문하고 싶어요.", vi: "Tôi muốn gọi một ly sinh tố trái cây địa phương."},
+                    {kr: "실내 휴식 공간이 있나요?", vi: "Có khu vực nghỉ ngơi trong nhà không?"},
+                    {kr: "여기서 보는 강 뷰가 멋지네요.", vi: "Cảnh sông từ đây thật tuyệt vời."},
+                    {kr: "음료 마지막 주문 시간은 몇 시인가요?", vi: "Giờ gọi món cuối cùng cho đồ uống là mấy giờ?"},
+                    {kr: "시설을 잘 즐기고 있어요.", vi: "Chúng tôi đang tận hưởng các tiện nghi rất tốt."},
+                    {kr: "우산을 하나 더 빌릴 수 있나요?", vi: "Chúng tôi có thể mượn thêm một chiếc ô (dù) không?"}
+                ],
+                cautions: "호텔 루프탑/수영장 이용 시 외부 음식 반입 금지. 사진 스팟 확인。"
+            },
+            { day: 4, date: getDateString(21), time: "18:00", activity: "🍽️ 마지막 저녁 식사: 퓨전 베트남 음식", location: "마담 란 (Madam Lan)", 
+                mapLink: "https://www.google.com/maps/place/Nhà+Hàng+Madam+Lân/@16.0592866,108.216923,17z/data=!3m1!4b1!4m6!3m5!1s0x314219b67482329f:0x5e5b3063544a0709!8m2!3d16.0592866!4d108.219504!16s%2Fg%2F11b65v7011?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+마담란+후기+사진", 
+                duration: "1h 30m", points: ["다낭에서 유명한 정원형 레스토랑. 다양한 베트남 음식을 한 번에 맛볼 수 있음.", "하이안 호텔에서 Grab으로 10분 내 거리"],
+                phrases: [
+                    {kr: "정원 쪽 테이블로 부탁드립니다.", vi: "Vui lòng cho chúng tôi một bàn ở khu vực sân vườn."},
+                    {kr: "인기 있는 밥 요리를 추천해 주세요.", vi: "Vui lòng giới thiệu một món cơm phổ biến."},
+                    {kr: "분위기가 매우 낭만적이고 아름답네요.", vi: "Không gian rất lãng mạn và đẹp."},
+                    {kr: "마담 란 스프링롤 세트가 네 명에게 충분한가요?", vi: "Set chả giò Madam Lan có đủ cho bốn người không?"},
+                    {kr: "현지 수제 맥주를 마셔보고 싶어요.", vi: "Chúng tôi muốn thử bia thủ công địa phương."},
+                    {kr: "지금 계산서를 주시겠어요?", vi: "Vui lòng cho tôi hóa đơn bây giờ."},
+                    {kr: "이 요리에 땅콩이 들어가지 않도록 해 주세요.", vi: "Vui lòng đảm bảo món này không có đậu phộng."},
+                    {kr: "베트남에서의 마지막 밤을 축하하고 있어요.", vi: "Chúng tôi đang ăn mừng đêm cuối cùng ở Việt Nam."},
+                    {kr: "훌륭한 식사 감사합니다.", vi: "Cảm ơn vì bữa ăn đặc biệt."},
+                    {kr: "저녁 피크 시간을 피할 좋은 시간이 있나요?", vi: "Có thời điểm nào tốt để tránh giờ cao điểm bữa tối không?"}
+                ],
+                cautions: "마지막 식사 후 공항 일정을 위해 시간을 여유롭게 잡을 것. 붐비는 곳이므로 소매치기 주의。"
+            },
+            { day: 4, date: getDateString(21), time: "19:30", activity: "🛒 마지막 쇼핑: GO! Mart 또는 한강변 야시장", location: "GO! Mart (고마트) 다낭점", 
+                mapLink: "https://www.google.com/maps/place/GO!+Mart+Đà+Nẵng/@16.06915,108.220197,17z/data=!3m1!4b1!4m6!3m5!1s0x314218318855a82f:0x5e5b3063544a0709!8m2!3d16.06915!4d108.2227719!16s%2Fg%2F11gb3rk2tx?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+고마트+쇼핑+후기", 
+                duration: "1h 30m", points: ["여행용 캐리어에 들어갈 수 있는 기념품 (커피, 과자 등) 최종 구매", "**새벽 비행이므로 짐을 최종 정리할 시간 고려**"],
+                phrases: [
+                    {kr: "인스턴트 커피 코너는 어디인가요?", vi: "Khu vực cà phê hòa tan ở đâu?"},
+                    {kr: "기념품을 담을 튼튼한 가방이 필요해요.", vi: "Tôi cần một chiếc túi bền để đựng quà lưu niệm."},
+                    {kr: "이 와인의 가격을 알려주시겠어요?", vi: "Bạn có thể cho tôi biết giá chai rượu vang này không?"},
+                    {kr: "공항에 세금 환급 사무실이 있나요?", vi: "Có văn phòng hoàn thuế tại sân bay không?"},
+                    {kr: "외국 신용카드로 결제할게요.", vi: "Chúng tôi sẽ thanh toán bằng thẻ tín dụng nước ngoài."},
+                    {kr: "깨지기 쉬운 이 병들을 포장해 주세요.", vi: "Vui lòng giúp tôi gói những chai dễ vỡ này."},
+                    {kr: "대량 구매 계산대는 어디에 있나요?", vi: "Quầy thanh toán cho đơn hàng số lượng lớn ở đâu?"},
+                    {kr: "작은 베트남 동 지폐로 교환해야 해요.", vi: "Tôi cần đổi một ít tiền lẻ Việt Nam."},
+                    {kr: "감사합니다, 저희 쇼핑은 이것으로 끝났어요.", vi: "Cảm ơn, chúng tôi đã mua sắm xong."},
+                    {kr: "현지 과자를 찾고 있어요.", vi: "Chúng tôi đang tìm các loại đồ ăn nhẹ địa phương."}
+                ],
+                cautions: "액체류 (주류, 소스)는 반드시 위탁 수하물에 넣어야 함. 마트 영수증을 잘 보관 (세금 환급 시 필요)。"
+            },
+            { day: 4, date: getDateString(21), time: "21:00", activity: "🛏️ 호텔 복귀, 짐 정리 및 샤워", location: "하이안 리버프런트 호텔", 
+                mapLink: "https://www.google.com/maps/place/Hạian+Riverfront+Hotel/@16.06915,108.220197,17z/data=!3m1!4b1!4m6!3m5!1s0x314218318855a82f:0x5e5b3063544a0709!8m2!3d16.06915!4d108.2227719!16s%2Fg%2F11gb3rk2tx?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=여행+짐정리+사진", 
+                duration: "2h 00m", points: ["**새벽 비행**을 위해 짐을 싸고, 위탁/기내 수하물 분리 최종 확인", "호텔 짐 보관 서비스 대신 룸에서 대기"],
+                phrases: [
+                    {kr: "옷을 걸 추가 옷걸이가 몇 개 필요해요.", vi: "Tôi cần thêm vài cái móc treo quần áo."},
+                    {kr: "에어컨 온도를 편안한 온도로 설정해 주세요.", vi: "Vui lòng đặt nhiệt độ máy lạnh ở mức thoải mái."},
+                    {kr: "우리 짐가방에 빈 공간이 충분한가요?", vi: "Hành lý của chúng tôi có đủ chỗ trống không?"},
+                    {kr: "오늘 밤 일찍 체크아웃해야 해요.", vi: "Chúng tôi phải trả phòng sớm tối nay."},
+                    {kr: "깨지기 쉬운 물건들을 조심스럽게 포장할게요.", vi: "Tôi sẽ gói các đồ dễ vỡ cẩn thận."},
+                    {kr: "공항으로 몇 시에 출발해야 하나요?", vi: "Chúng tôi nên khởi hành ra sân bay lúc mấy giờ?"},
+                    {kr: "알람은 밤 11시에 맞춰져 있어요.", vi: "Đã đặt báo thức lúc 11 giờ tối."},
+                    {kr: "작은 기념품 가방 개수를 최종 확인해야 해요.", vi: "Tôi cần kiểm tra lại số lượng túi quà lưu niệm nhỏ."},
+                    {kr: "출발 시간까지 쉴게요.", vi: "Chúng tôi sẽ nghỉ ngơi cho đến giờ khởi hành."},
+                    {kr: "방이 아주 깨끗하네요, 감사합니다.", vi: "Phòng rất sạch, cảm ơn bạn."}
+                ],
+                cautions: "**새벽 01:30 비행**이므로, 최소 **23:00**에는 체크아웃 및 공항 이동 시작 (공항까지 20분)."
+            },
+
+            // --- Day 5: 12/22 (일) - 새벽 공항 이동 및 귀국 ---
+            { day: 5, date: getDateString(22), time: "23:00 (전일)", activity: "🚗 호텔 체크아웃 및 다낭 국제공항 이동", location: "하이안 리버프런트 호텔 → DAD 국제선 출국장", 
+                mapLink: "https://www.google.com/maps/place/Sân+bay+Quốc+tế+Đà+Nẵng/@16.0461821,108.1979201,17z/data=!3m1!4b1!4m6!3m5!1s0x31421927361fd099:0x868b420061e8fa86!8m2!3d16.0461821!4d108.200495!16s%2Fg%2F1hhg75c6r?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+새벽+공항+이동+후기", 
+                duration: "30m", points: ["프런트 데스크에 최종 체크아웃 및 보증금 정산", "Grab 또는 예약된 심야 차량으로 공항 이동"],
+                phrases: [
+                    {kr: "지금 체크아웃합니다, 최종 계산서를 준비해 주세요.", vi: "Chúng tôi trả phòng bây giờ, vui lòng chuẩn bị hóa đơn cuối cùng."},
+                    {kr: "공항으로 가는 큰 택시를 바로 불러주세요.", vi: "Vui lòng gọi ngay một chiếc taxi lớn đến sân bay."},
+                    {kr: "비행기가 새벽 1시 30분입니다, 서둘러야 해요.", vi: "Chuyến bay lúc 1:30 sáng, chúng tôi cần phải nhanh lên."},
+                    {kr: "훌륭한 숙박 감사합니다.", vi: "Cảm ơn vì đã cho chúng tôi một kỳ nghỉ tuyệt vời."},
+                    {kr: "택시 요금에 대한 작은 영수증을 받을 수 있나요?", vi: "Tôi có thể nhận một hóa đơn nhỏ cho tiền taxi không?"},
+                    {kr: "하이안 리버프런트 호텔은 훌륭했어요.", vi: "Khách sạn Hạian Riverfront rất tuyệt."},
+                    {kr: "오늘 밤 공항으로 가는 길이 막히지 않나요?", vi: "Đường ra sân bay tối nay có bị kẹt xe không?"},
+                    {kr: "다음에 다시 다낭을 방문하고 싶어요.", vi: "Chúng tôi hy vọng sẽ ghé thăm Đà Nẵng lần nữa."},
+                    {kr: "저희 짐이 모두 실렸는지 확인해 주세요.", vi: "Vui lòng kiểm tra xem tất cả hành lý của chúng tôi đã được chất lên xe chưa."},
+                    {kr: "안녕히 계세요, 감사합니다.", vi: "Tạm biệt và cảm ơn bạn."}
+                ],
+                cautions: "새벽 시간대에도 Grab은 잘 잡히나, 심야 할증 요금 확인. 공항 도착 시각을 늦어도 23:30으로 잡을 것。"
+            },
+            { day: 5, date: getDateString(22), time: "23:30 (전일)", activity: "✈️ 다낭 공항 도착 및 체크인 수속", location: "Da Nang International Airport (DAD) 국제선 출국장", 
+                mapLink: "https://www.google.com/maps/place/Sân+bay+Quốc+tế+Đà+Nẵng/@16.0461821,108.1979201,17z/data=!3m1!4b1!4m6!3m5!1s0x31421927361fd099:0x868b420061e8fa86!8m2!3d16.0461821!4d108.200495!16s%2Fg%2F1hhg75c6r?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+공항+새벽+체크인+후기", 
+                duration: "1h 30m", points: ["항공사 카운터에서 수하물 위탁 및 보딩패스 수령 (새벽 시간대에도 카운터 운영)", "여유가 된다면 면세점 구경"],
+                phrases: [
+                    {kr: "복도 쪽에 네 자리 함께 앉고 싶어요.", vi: "Chúng tôi muốn bốn chỗ ngồi cạnh nhau, gần lối đi."},
+                    {kr: "세금 환급 사무실은 어디인가요?", vi: "Văn phòng hoàn thuế ở đâu?"},
+                    {kr: "이 시간에 운영하는 공항 라운지가 있나요?", vi: "Có phòng chờ sân bay nào mở vào giờ này không?"},
+                    {kr: "위탁 수하물의 최대 무게는 얼마인가요?", vi: "Trọng lượng tối đa cho hành lý ký gửi là bao nhiêu?"},
+                    {kr: "지금 수하물을 체크인해야 해요.", vi: "Chúng tôi cần ký gửi hành lý ngay bây giờ."},
+                    {kr: "깨지기 쉬우니 조심히 다뤄주세요.", vi: "Xin vui lòng xử lý cẩn thận đồ dễ vỡ."},
+                    {kr: "탑승은 몇 시에 시작하나요?", vi: "Việc lên máy bay bắt đầu lúc mấy giờ?"},
+                    {kr: "게이트 번호를 확인해야 해요.", vi: "Tôi cần xác nhận số cổng (gate)."},
+                    {kr: "보안 검사 후에 물 한 병을 어디서 살 수 있나요?", vi: "Tôi có thể mua một chai nước sau khi kiểm tra an ninh ở đâu?"},
+                    {kr: "빠른 체크인 감사합니다.", vi: "Cảm ơn vì đã làm thủ tục nhanh chóng."}
+                ],
+                cautions: "체크인 마감 시간을 놓치지 않도록 주의. 공항 내 식당 및 편의 시설은 심야에 영업을 안 할 수 있음。"
+            },
+            { day: 5, date: getDateString(22), time: "01:30", activity: "🇰🇷 항공기 탑승 및 귀국", location: "다낭 국제공항", 
+                mapLink: "https://www.google.com/maps/place/Sân+bay+Quốc+tế+Đà+Nẵng/@16.0461821,108.1979201,17z/data=!3m1!4b1!4m6!3m5!1s0x31421927361fd099:0x868b420061e8fa86!8m2!3d16.0461821!4d108.200495!16s%2Fg%2F1hhg75c6r?entry=ttu", 
+                photoSearchLink: "https://search.naver.com/search.naver?where=image&query=베트남+귀국+항공기+탑승", 
+                duration: "6h 40m", points: ["새벽 비행이므로 기내에서 충분히 수면 취하기", "인천 도착 후 시차 적응 대비"],
+                phrases: [
+                    {kr: "실례합니다, 담요 좀 주시겠어요?", vi: "Xin lỗi, cho tôi xin một cái chăn được không?"},
+                    {kr: "지금 전자기기를 꺼 주세요.", vi: "Vui lòng tắt các thiết bị điện tử của bạn ngay bây giờ."},
+                    {kr: "베트남에서 정말 즐거운 여행을 했어요.", vi: "Chúng tôi đã có một chuyến đi tuyệt vời ở Việt Nam."},
+                    {kr: "제 좌석을 바꿀 수 있나요?", vi: "Tôi có thể đổi chỗ ngồi không?"},
+                    {kr: "승무원 호출 버튼은 어디에 있나요?", vi: "Nút gọi tiếp viên ở đâu?"},
+                    {kr: "착륙까지 얼마나 남았나요?", vi: "Còn bao lâu nữa thì chúng ta hạ cánh?"},
+                    {kr: "제 가방 드는 것을 도와주시겠어요?", vi: "Bạn có thể giúp tôi với cái túi của tôi không?"},
+                    {kr: "물 한 잔 주세요.", vi: "Cho tôi một ly nước, làm ơn."},
+                    {kr: "영화 시스템이 작동하나요?", vi: "Hệ thống xem phim có hoạt động không?"},
+                    {kr: "비행 감사합니다.", vi: "Cảm ơn vì chuyến bay."}
+                ],
+                cautions: "기내에서 숙면을 취하여 귀국 후 피로를 최소화. 한국 도착 후 시차 적응 준비。"
+            }
+        ];
+
+        // -----------------------------------------------------
+        // 2. Utility Functions
+        // -----------------------------------------------------
+
+        /**
+         * 모달 열기/닫기
+         */
+        function openModal(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        /**
+         * 탭 메뉴 전환 기능
+         */
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(tabId).style.display = 'block';
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.nav-btn[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        /**
+         * Google TTS API를 직접 호출하여 베트남어 음성 파일 링크를 생성하고 재생합니다.
+         * 모바일 재생 실패 시 안내 모달을 띄웁니다.
+         */
+        function speakVietnameseLink(vietnameseText) {
+            const encodedText = encodeURIComponent(vietnameseText);
+            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=vi&client=tw-ob`;
+            
+            // Audio 객체 생성 및 재생
+            const audio = new Audio(ttsUrl);
+            
+            // 재생 시도 및 실패 시 모달 띄우기
+            audio.play().catch(e => {
+                console.error("Audio playback failed (usually due to autoplay policy):", e);
+                // 자동 재생 차단 오류 발생 시 모달 표시
+                openModal('ttsFailModal');
+            });
+
+            // 버튼 상태 변경 피드백 (선택 사항)
+            const button = event.currentTarget;
+            const originalText = button.innerHTML;
+            button.innerHTML = '🔊 🗣️ 재생 중...';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 2000);
+        }
+
+
+        /**
+         * 아코디언 토글 기능
+         */
+        function toggleAccordion(element) {
+            const item = element.closest('.timeline-item');
+            const details = item.querySelector('.timeline-details');
+            
+            // max-height가 0이 아니면 닫고, 0이면 엽니다.
+            const isCurrentlyOpen = details.style.maxHeight !== '0px' && details.style.maxHeight !== '';
+
+            if (isCurrentlyOpen) {
+                // 닫기
+                details.style.maxHeight = null;
+                item.classList.remove('active');
+            } else {
+                // 열기
+                details.style.maxHeight = details.scrollHeight + "px";
+                item.classList.add('active');
+            }
+        }
+
+        // -----------------------------------------------------
+        // 3. Main Initialization Function
+        // -----------------------------------------------------
+
+        function initializeDashboard() {
+            // 탭 초기화
+            document.querySelectorAll('.nav-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    switchTab(e.target.dataset.tab);
+                });
+            });
+
+            // 초기 탭 설정
+            switchTab('timeline'); 
+            switchTab('summary'); 
+
+            // 타임라인 데이터 렌더링
+            renderTimeline();
+        }
+        
+        /**
+         * 타임라인 HTML 렌더링
+         */
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            let currentDay = 0;
+            let isFirstItem = true; // 첫 번째 항목 플래그
+
+            timelineData.forEach(item => {
+                // 날짜 객체를 생성하여 요일 문자열을 만듭니다.
+                const datePart = item.date.substring(3, 5).trim();
+                const day = parseInt(datePart);
+                const date = new Date(2024, 11, day); 
+                const dayIndex = date.getDay();
+                const dayOfWeek = dayMap[dayIndex];
+                const displayDate = `${item.date.substring(0, 5)}${dayOfWeek}`;
+                
+                // 새로운 날짜 섹션 추가
+                if (item.day !== currentDay) {
+                    currentDay = item.day;
+                    const dayHeader = document.createElement('h3');
+                    dayHeader.className = 'text-2xl font-bold text-blue-800 p-3 mt-6 mb-2 rounded-lg bg-blue-200 shadow-md day-header';
+                    
+                    const dayType = item.day === 3 ? '다낭 → 호이안 이동' : item.day === 4 ? '호이안 → 다낭 복귀' : item.day < 3 ? '다낭 도착/시내' : '새벽 귀국';
+                    dayHeader.innerHTML = `
+                        <span>Day ${item.day} - ${dayType}</span>
+                        <span class="day-highlight">${displayDate}</span>
+                    `;
+                    container.appendChild(dayHeader);
+                }
+
+                // 베트남어 표현 10가지 렌더링
+                const vietnameseList = item.phrases.map((pair, index) => `
+                    <li class="flex flex-col py-1 border-b border-gray-100 last:border-b-0">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-700 font-medium">${index + 1}. **${pair.vi}**</span>
+                            <button onclick="speakVietnameseLink('${pair.vi.replace(/'/g, "\\'")}')" class="tts-button">
+                                🔊 재생 (베트남어)
+                            </button>
+                        </div>
+                        <span class="text-xs text-blue-600 font-light mt-0.5 ml-4">(${pair.kr})</span>
+                    </li>
+                `).join('');
+
+                const pointsList = item.points.map(p => `<li class="text-sm text-gray-700 font-medium">✨ ${p}</li>`).join('');
+                
+                // 첫 번째 항목에 'active' 클래스를 기본으로 추가
+                const itemClasses = isFirstItem ? 'timeline-item card-shadow rounded-xl overflow-hidden mb-4 border border-blue-100 active' : 'timeline-item card-shadow rounded-xl overflow-hidden mb-4 border border-blue-100';
+
+
+                const html = `
+                    <div class="${itemClasses}">
+                        <div class="timeline-item-header p-4 flex justify-between items-center cursor-pointer" onclick="toggleAccordion(this)">
+                            <div class="flex-1">
+                                <p class="text-sm font-light">${item.time} (${item.duration})</p>
+                                <h4 class="text-xl font-bold">${item.activity}</h4>
+                                <p class="text-xs font-medium">${item.location}</p>
+                            </div>
+                            <svg class="w-6 h-6 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+
+                        <div class="timeline-details space-y-4">
+                            <!-- 시각적 자료 (사진/지도) -->
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="detail-box">
+                                    <h5 class="font-bold text-blue-700 mb-2">📸 실제 후기 사진 (공개 검색)</h5>
+                                    <!-- 실제 후기 검색 링크 제공 -->
+                                    <a href="${item.photoSearchLink}" target="_blank" class="map-link-btn h-24 bg-green-50 border-green-400 text-green-800 hover:bg-green-100">
+                                        클릭하여 네이버/블로그 후기 사진 검색 결과 보기 👀
+                                    </a>
+                                    <p class="text-xs mt-2 text-gray-600">💡 **참고:** 로그인 없이 공개된 후기 사진을 바로 확인 가능합니다.</p>
+                                </div>
+                                <div class="detail-box">
+                                    <h5 class="font-bold text-blue-700 mb-2">🗺️ 정밀 지도 (구글맵 - 완벽 검증 완료)</h5>
+                                    <!-- Google Maps Link (모바일 연동 확인) -->
+                                    <a href="${item.mapLink}" target="_blank" class="map-link-btn">
+                                        구글 지도에서 위치 확인하기 (핸드폰에서 바로 열림) 📍
+                                    </a>
+                                    <p class="text-xs mt-2 text-gray-600">💡 **위치:** ${item.location} (오류 없는 **영구 링크**로 교체)</p>
+                                </div>
+                            </div>
+
+                            <!-- 핵심 포인트 & 주의점 -->
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="detail-box bg-blue-50">
+                                    <h5 class="font-bold text-blue-700 mb-2">🔥 핵심 즐길 포인트 (후기 기반)</h5>
+                                    <ul class="list-none space-y-1">${pointsList}</ul>
+                                </div>
+                                <div class="detail-box bg-red-50 border-red-400 border-l-4">
+                                    <h5 class="font-bold text-red-600 mb-2">⚠️ 주의점 (다양한 후기 기반)</h5>
+                                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-700 ml-2">
+                                        <li>${item.cautions}</li>
+                                        <li>**소액권 지폐**를 항상 준비하여 거스름돈 문제 예방.</li>
+                                        <li>**그랩(Grab) 결제 시** 가끔 현금 결제로 바뀌는 오류 주의 (앱 내역 확인).</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 예상 영어 표현 -->
+                            <div class="detail-box">
+                                <h5 class="font-bold text-blue-700 mb-2">🗣️ 현지 베트남어 표현 (10가지, 음성 지원)</h5>
+                                <p class="text-xs text-gray-500 mb-2">버튼을 누르면 **현지 베트남어 발음**이 재생됩니다. (텍스트는 **베트남어 원문**입니다.)</p>
+                                <ul class="list-none space-y-1">${vietnameseList}</ul>
+                            </div>
+                            
+                            <!-- 주변 즐길거리 & 마트 정보 -->
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="detail-box">
+                                    <h5 class="font-bold text-blue-700 mb-2">👀 주변 즐길거리/먹거리</h5>
+                                    <p class="text-sm text-gray-600">주변 카페, 기념품 가게, 마사지 등 후기 기반 추천</p>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}+주변+맛집+카페" target="_blank" class="text-xs text-blue-500 font-semibold hover:underline">➡️ **주변 POI 구글맵 바로가기 (클릭)**</a>
+                                </div>
+                                <div class="detail-box">
+                                    <h5 class="font-bold text-blue-700 mb-2">🛒 주변 대형 마트 (GO! Mart 또는 Coop Mart)</h5>
+                                    <p class="text-sm text-gray-600">${item.nearbyMart || '이동 경로 주변의 대형 마트가 곧 검색됩니다.'}</p>
+                                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}+가까운+대형마트" target="_blank" class="text-xs text-blue-500 font-semibold hover:underline">➡️ **마트 위치 지도 (클릭)**</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+                
+                // 첫 번째 항목에 대해서만 실행
+                if (isFirstItem) {
+                    isFirstItem = false;
+                }
+            });
+
+             // 첫 번째 항목의 details 높이를 설정하여 열린 상태 유지
+             const firstItemElement = container.querySelector('.timeline-item.active');
+             if(firstItemElement) {
+                 const details = firstItemElement.querySelector('.timeline-details');
+                 // 비동기적인 내용 로딩이 완료된 후 실행되도록 setTimeout 사용
+                 setTimeout(() => {
+                    details.style.maxHeight = details.scrollHeight + "px";
+                 }, 100);
+             }
+        }
+
+        // DOM 로드 후 초기화
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+    </script>
+</body>
+</html>
