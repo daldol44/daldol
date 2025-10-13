@@ -164,6 +164,47 @@
             z-index: 10;
             position: relative;
         }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 12px;
+            width: 85%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-close-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+        }
+        .modal-close-btn:hover {
+            background-color: #1d4ed8;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -365,6 +406,20 @@
 
     </main>
 
+    <!-- TTS 재생 실패 시 안내 모달 -->
+    <div id="ttsFailModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold text-red-600 mb-4">📢 음성 재생 실패 해결 방법</h3>
+            <p class="text-sm text-gray-700 mb-4">브라우저의 자동 재생 정책 때문에 재생이 차단되었습니다. **아이폰/갤럭시** 모두 다음과 같이 시도해주세요.</p>
+            
+            <ol class="list-decimal list-inside space-y-2 text-sm text-gray-800 ml-4">
+                <li class="font-bold text-blue-600">**1단계 (가장 쉬움):** 페이지를 **스크롤 또는 터치**하여 상호작용을 한 후, **다시 재생 버튼**을 눌러보세요.</li>
+                <li>**2단계 (설정 확인):** 사용하는 브라우저(크롬/사파리) 설정에서 '사이트 설정' 또는 '미디어 설정'을 찾아 **자동 재생을 '허용'**으로 변경해주세요.</li>
+            </ol>
+            <button onclick="closeModal('ttsFailModal')" class="modal-close-btn">확인 (창 닫기)</button>
+        </div>
+    </div>
+
     <!-- JavaScript for Interactivity -->
     <script>
         // -----------------------------------------------------
@@ -553,7 +608,7 @@
                 cautions: "**가격 확인 필수!** 무게를 달 때 눈으로 확인하고, 주문서를 꼭 보관。"
             },
             { day: 2, date: getDateString(19), time: "19:30", activity: "🌉 드래곤 브릿지 (용다리) 야경 감상 및 산책", location: "Dragon Bridge Da Nang", 
-                mapLink: "https://www.google.com/maps/place/Cầu+Rồng/@16.0601366,108.2241619,17z/data=!3m1!4b1!4m6!3m5!1s0x31421833758b29f7:0x5e5b3063544a0709!8m2!3d16.0601366!4d108.2267368!16s%2Fg%2F122756d1?entry=ttu", 
+                mapLink: "https://www.google.com/maps/place/Cầu+Rồng/@16.0601366,108.2241619,17z/data=!3m1!4b1!4m6!3m5!1s0x31421833758b29f7:0x5e5b3063544a0709!8m2!3d16.0601366!4d108.2267368!16zL20vMDd2cjB4?entry=ttu", 
                 photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+용다리+야경+후기", 
                 duration: "1h 00m", points: ["**하이안 호텔에서 도보 10분** (리버프런트의 장점)", "화려한 LED 조명 감상. (토, 일요일 21:00 불쇼/물쇼)"],
                 phrases: [
@@ -828,7 +883,7 @@
                 cautions: "호텔 루프탑/수영장 이용 시 외부 음식 반입 금지. 사진 스팟 확인。"
             },
             { day: 4, date: getDateString(21), time: "18:00", activity: "🍽️ 마지막 저녁 식사: 퓨전 베트남 음식", location: "마담 란 (Madam Lan)", 
-                mapLink: "https://www.google.com/maps/place/Nhà+Hàng+Madam+Lân/@16.0592866,108.216923,17z/data=!3m1!4b1!4m6!3m5!1s0x314219b1681a97f7:0x5e5b3063544a0709!8m2!3d16.0592866!4d108.219504!16s%2Fg%2F11b65v7011?entry=ttu", 
+                mapLink: "https://www.google.com/maps/place/Nhà+Hàng+Madam+Lân/@16.0592866,108.216923,17z/data=!3m1!4b1!4m6!3m5!1s0x314219b67482329f:0x5e5b3063544a0709!8m2!3d16.0592866!4d108.219504!16s%2Fg%2F11b65v7011?entry=ttu", 
                 photoSearchLink: "https://search.naver.com/search.naver?where=image&query=다낭+마담란+후기+사진", 
                 duration: "1h 30m", points: ["다낭에서 유명한 정원형 레스토랑. 다양한 베트남 음식을 한 번에 맛볼 수 있음.", "하이안 호텔에서 Grab으로 10분 내 거리"],
                 phrases: [
@@ -944,6 +999,17 @@
         // -----------------------------------------------------
 
         /**
+         * 모달 열기/닫기
+         */
+        function openModal(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        /**
          * 탭 메뉴 전환 기능
          */
         function switchTab(tabId) {
@@ -960,19 +1026,20 @@
 
         /**
          * Google TTS API를 직접 호출하여 베트남어 음성 파일 링크를 생성하고 재생합니다.
-         * TTS 텍스트로 **베트남어 원문**을 사용합니다.
+         * 모바일 재생 실패 시 안내 모달을 띄웁니다.
          */
         function speakVietnameseLink(vietnameseText) {
-            // 베트남어 텍스트를 URL 인코딩합니다.
             const encodedText = encodeURIComponent(vietnameseText);
-            // Google Translate TTS API URL 형식: tl=vi (베트남어), q=인코딩된 텍스트
             const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=vi&client=tw-ob`;
             
-            // Audio 객체를 생성하여 음성 파일을 재생합니다.
+            // Audio 객체 생성 및 재생
             const audio = new Audio(ttsUrl);
+            
+            // 재생 시도 및 실패 시 모달 띄우기
             audio.play().catch(e => {
-                console.error("Audio playback failed:", e);
-                alert('🔴 음성 재생 실패: 브라우저의 자동 재생 정책 때문에 재생이 차단되었습니다. 화면을 터치하거나 브라우저 설정을 확인해주세요.');
+                console.error("Audio playback failed (usually due to autoplay policy):", e);
+                // 자동 재생 차단 오류 발생 시 모달 표시
+                openModal('ttsFailModal');
             });
 
             // 버튼 상태 변경 피드백 (선택 사항)
@@ -1058,7 +1125,6 @@
                 }
 
                 // 베트남어 표현 10가지 렌더링
-                // pair.vi (베트남어 원문)을 사용하여 버튼의 재생 텍스트를 설정합니다.
                 const vietnameseList = item.phrases.map((pair, index) => `
                     <li class="flex flex-col py-1 border-b border-gray-100 last:border-b-0">
                         <div class="flex justify-between items-center">
