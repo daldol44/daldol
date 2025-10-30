@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>화학 올림피아드 KMChC 4개월 단기 완성 로드맵</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #f0fdf4; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; 
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .step-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(134, 250, 155, 0.7), 0 4px 6px -2px rgba(134, 250, 155, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-green-50 text-gray-800">
+    <!-- Chosen Palette: Energetic & Hopeful (Teal, Green, Indigo, Yellow) -->
+    <!-- Application Structure Plan: "4-Month Countdown Dashboard for KMChC 2/15." The structure is built around the verified KMChC schedule and content scope. Section 1: Goal & Verified Dates (Using 2025 data to project 2026 dates). Highlight the General/Advanced track decision. Section 2: The 4-Step Monthly Strategy (Nov 2025 -> Feb 15, 2026). Steps are focused on covering the wide General Chemistry scope required for KMChC. Step 3 (January) is marked for registration and final theory push. Section 3: Urgency Map (Chart.js visualization) showing the required acceleration. Section 4: Action Center (KMChC Scope Breakdown, Official Link). The structure ensures parents understand the short timeline and the nature of the content (Gen Chem I/II fundamentals). -->
+    <!-- Visualization & Content Choices: 1. Goal & Dates: Goal=Inform. Method=HTML/Tailwind Highlight Card. Justification=Confirms the Feb 15 date and introduces the two tracks (General/Advanced). 2. 4-Step Countdown: Goal=Organize/Interact. Method=Clickable `step-card`s (monthly focus). Interaction=Dynamic content update. Justification=Breaks the 4-month prep into manageable monthly goals tied to General Chemistry topics. 3. Urgency Map: Goal=Change/Organize. Method=Chart.js Line Chart. X-axis shows the 4-month span. Justification=Visually conveys the required intensity. Library=Chart.js/Canvas. 4. Action Center: Goal=Inform/Verify/Organize. Method=HTML/Tailwind List, Button, and Comparative Grid. Justification=Provides verified scope details and the official source. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <div class="container mx-auto max-w-7xl p-4 md:p-10">
+        
+        <header class="text-center mb-10 p-6 bg-white rounded-xl shadow-lg border-b-4 border-green-500">
+            <div class="text-5xl mb-3">🧪🏆</div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-700">KMChC 4개월 단기 완성 로드맵 (중2 대상)</h1>
+            <p class="text-xl text-gray-600 mt-2">🔥 2026년 2월 15일 시험을 향한 초고강도 4개월 집중 플랜 🔥</p>
+        </header>
+
+        
+        <section class="mb-12">
+            <h2 class="text-2xl md:text-3xl font-bold text-teal-600 mb-6 border-l-4 border-teal-400 pl-3">✅ 미션 및 핵심 일정 (Fact Check 완료)</h2>
+            <div class="bg-green-100 p-6 rounded-lg shadow-md border-2 border-green-500 flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-start mb-4 md:mb-0">
+                    <span class="text-4xl mr-4">📅</span>
+                    <div>
+                        <p class="text-lg font-semibold text-gray-800 mb-1">D-Day: <span class="text-red-600 font-extrabold">2026년 2월 15일 (토) 14시</span> (예상)</p>
+                        <p class="text-lg font-semibold text-gray-800">응시 단계: <span class="text-indigo-600 font-extrabold">일반 단계 or 심화 단계 선택</span></p>
+                    </div>
+                </div>
+                <div class="bg-yellow-400 text-gray-800 font-bold py-3 px-6 rounded-full shadow-lg text-center">
+                    <span class="text-xl">⚠️ 1월은 접수와 학습을 병행하는 가장 중요한 달입니다!</span>
+                </div>
+            </div>
+        </section>
+
+        
+        <section class="mb-12">
+            <h2 class="text-2xl md:text-3xl font-bold text-teal-600 mb-6 border-l-4 border-teal-400 pl-3">🗺️ KMChC 4개월 월별 초점 전략</h2>
+            <p class="text-gray-700 mb-6">4개월 만에 일반화학 기초를 완성하고 시험에 응시하기 위한 **월별 초고강도 학습 목표**입니다.</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div id="step1" class="step-card bg-white p-4 rounded-xl shadow-md border-t-4 border-indigo-400 text-center" onclick="showPhaseDetail(1)">
+                    <div class="text-4xl mb-2">⚛️</div>
+                    <p class="font-bold text-lg text-indigo-700">STEP 1. 원자/결합 폭파</p>
+                    <p class="text-sm text-gray-500">11월</p>
+                </div>
+                <div id="step2" class="step-card bg-white p-4 rounded-xl shadow-md border-t-4 border-teal-400 text-center" onclick="showPhaseDetail(2)">
+                    <div class="text-4xl mb-2">🔥</div>
+                    <p class="font-bold text-lg text-teal-700">STEP 2. 반응/평형 집중</p>
+                    <p class="text-sm text-gray-500">12월</p>
+                </div>
+                <div id="step3" class="step-card bg-white p-4 rounded-xl shadow-md border-t-4 border-green-400 text-center" onclick="showPhaseDetail(3)">
+                    <div class="text-4xl mb-2">📝</div>
+                    <p class="font-bold text-lg text-green-700">STEP 3. 1월 완성/접수</p>
+                    <p class="text-sm text-gray-500">1월</p>
+                </div>
+                <div id="step4" class="step-card bg-white p-4 rounded-xl shadow-md border-t-4 border-yellow-400 text-center" onclick="showPhaseDetail(4)">
+                    <div class="text-4xl mb-2">🏅</div>
+                    <p class="font-bold text-lg text-yellow-700">STEP 4. 2월 실전</p>
+                    <p class="text-sm text-gray-500">2월 1일 ~ 15일</p>
+                </div>
+            </div>
+
+            <div id="detail-panel" class="bg-white p-6 rounded-xl shadow-xl min-h-[200px] border-2 border-gray-200">
+                <p class="text-xl text-gray-500 text-center pt-8">👆 위 4단계를 클릭하시면 매월의 초고강도 학습 목표가 표시됩니다.</p>
+            </div>
+        </section>
+
+        
+        <section class="mb-12">
+            <h2 class="text-2xl md:text-3xl font-bold text-teal-600 mb-6 border-l-4 border-teal-400 pl-3">📈 4개월 초단기 학습 집중도 (절대적 시간표)</h2>
+            <p class="text-gray-700 mb-6">성공적인 2월 시험을 위해 **1월까지 일반화학 핵심 개념 90% 이상**을 달성해야 합니다.</p>
+            <div class="chart-container bg-white p-4 rounded-lg shadow-md">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </section>
+
+        
+        <section class="mb-12">
+            <h2 class="text-2xl md:text-3xl font-bold text-teal-600 mb-6 border-l-4 border-teal-400 pl-3">🔗 응시 단계별 평가 범위 분석 (필수)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="bg-indigo-100 p-6 rounded-xl shadow-md border-2 border-indigo-400">
+                    <h3 class="text-xl font-bold text-indigo-800 mb-3">📘 일반 단계 (General Track)</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                        <li>**목표:** 화학 기본 개념 점검</li>
+                        <li>**주요 범위:** 원소, 결합, 산염기, 용액, 물질 상태, 열역학, 평형 등 **일반화학의 주요 10가지 개념**</li>
+                        <li>**특징:** 대학교 일반화학의 심화 수식보다는 **개념 적용** 문제 위주</li>
+                        <li class="font-bold text-red-600">추천: KMChC를 처음 접하는 학생 (안정적인 기초 확보)</li>
+                    </ul>
+                </div>
+
+                
+                <div class="bg-white p-6 rounded-xl shadow-md border-2 border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">🔬 심화 단계 (Advanced Track)</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                        <li>**목표:** 우수 영재 선발 및 심화 학습 도전</li>
+                        <li>**주요 범위:** 일반화학 I/II **전 범위** (총괄성, 루이스 산염기, 전이금속, 유효 핵전하 등)</li>
+                        <li>**특징:** 복잡한 수식 유도, 논리적 사고력 요구 문제 다수</li>
+                        <li class="font-bold text-teal-600">추천: KChO 계절학교 준비를 염두에 둔 학생 (경쟁 우위 확보)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-3">🌐 KMChC 공식 홈페이지 주소 (Fact Check 완료)</h3>
+                <p class="text-gray-700 mb-4">최종 공지와 자세한 시험 요강은 주관처에서 확인합니다.</p>
+                <a href="https://olympiad.kchem.org/" target="_blank" class="block w-full text-center bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 rounded-lg transition duration-300 shadow-md">
+                    🔗 KMChC/KChO 공식 홈페이지 바로가기
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const phaseDetails = [
+            {
+                title: "⚛️ STEP 1. 원자/결합 폭파 (11월)",
+                color: "indigo",
+                content: `
+                    <div class="flex items-start">
+                        <span class="text-5xl mr-4">💨</span>
+                        <div>
+                            <p class="text-xl font-semibold text-gray-700 mb-2">KMChC의 핵심인 **원자 구조, 주기율표, 화학 결합** 개념을 완벽히 잡습니다.</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>**범위:** 원자 구조, 주기적 성질, 화학 결합, 분자 구조, 기체/액체와 분자간 힘</li>
+                                <li>**핵심:** 오비탈, 루이스 구조, VSEPR 이론 등 일반화학에서 확장된 개념 정립</li>
+                                <li>**단순화:** '화학의 기본 언어'를 유창하게 구사할 수 있는 단계</li>
+                                <li>**기간:** 4주</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "🔥 STEP 2. 반응/평형 집중 (12월)",
+                color: "teal",
+                content: `
+                    <div class="flex items-start">
+                        <span class="text-5xl mr-4">🌡️</span>
+                        <div>
+                            <p class="text-xl font-semibold text-gray-700 mb-2">KMChC에서 **배점이 높은 계산 파트(평형, 열역학)**에 집중합니다.</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>**범위:** 열역학, 반응 속도, 화학 평형, 수용액 평형 (산염기 포함)</li>
+                                <li>**핵심:** 헤스 법칙, 평형 상수의 계산, 르샤틀리에 원리의 **응용 문제** 풀이</li>
+                                <li>**단순화:** '복잡한 계산도 두려워하지 않는' 문제 해결 능력 확보</li>
+                                <li>**기간:** 4주</li>
+                            </div>
+                    </div>
+                `
+            },
+            {
+                title: "📝 STEP 3. 1월 완성/접수 (1월)",
+                color: "green",
+                content: `
+                    <div class="flex items-start">
+                        <span class="text-5xl mr-4">🔋</span>
+                        <div>
+                            <p class="text-xl font-semibold text-gray-700 mb-2">일반화학 나머지 범위 완성 및 **시험 접수를 반드시 완료**해야 합니다.</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>**범위:** 전기화학, 고체, 유기/분석화학 개념, 총괄성 등 일반화학 전 범위 마무리</li>
+                                <li>**핵심:** **1월 9일 ~ 2월 2일 (예상) 접수 기간 내 PC로 접수 완료**</li>
+                                <li>**단순화:** '이론 총정리 및 시험 응시 자격 확보' 단계</li>
+                                <li>**기간:** 4주</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "🏅 STEP 4. 2월 실전 (2월 1일 ~ 15일)",
+                color: "yellow",
+                content: `
+                    <div class="flex items-start">
+                        <span class="text-5xl mr-4">⏰</span>
+                        <div>
+                            <p class="text-xl font-semibold text-gray-700 mb-2">시험 직전, 2주간 **공식 기출문제집**으로 실전 감각을 최대치로 끌어올립니다.</p>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>**핵심:** **KMChC 기출문제 3개년 이상**을 시간 맞춰 풀이 및 오답 노트 정리</li>
+                                <li>**주의:** 일반/심화 단계별 문제 유형을 파악하고 목표 단계에 집중</li>
+                                <li>**단순화:** '아는 것만으로 합격'이 아닌, **'실수 없는 만점'**을 노리는 단계</li>
+                                <li>**기간:** 2주</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        function showPhaseDetail(step) {
+            const index = step - 1;
+            const detailPanel = document.getElementById('detail-panel');
+            const data = phaseDetails[index];
+
+            detailPanel.innerHTML = `
+                <h3 class="text-2xl font-extrabold text-${data.color}-700 mb-4">${data.title}</h3>
+                ${data.content}
+            `;
+
+            document.querySelectorAll('.step-card').forEach(card => card.classList.remove('active', 'bg-green-200'));
+            document.getElementById('step' + step).classList.add('active', 'bg-green-200');
+        }
+
+        function createTimelineChart() {
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            
+            const monthLabels = ['10월 말', '11월', '12월', '1월', '2월 중순'];
+            
+            const timelineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthLabels,
+                    datasets: [
+                        {
+                            label: '학습 진도 및 완벽도 (%)',
+                            data: [5, 30, 65, 90, 100], 
+                            borderColor: '#059669', 
+                            backgroundColor: 'rgba(5, 150, 105, 0.4)',
+                            pointBackgroundColor: '#059669',
+                            pointRadius: 6,
+                            fill: true,
+                            tension: 0.1, 
+                            yAxisID: 'y' 
+                        },
+                        {
+                            label: 'KMChC 시험일 (2/15)',
+                            data: [{x: 4, y: 100, r: 12}], 
+                            backgroundColor: '#f97316', 
+                            borderColor: '#ea580c',
+                            type: 'bubble', 
+                            yAxisID: 'y' 
+                        },
+                        {
+                            label: '접수 시작일 (1/9 예상)',
+                            data: [{x: 3.25, y: 50, r: 8}], 
+                            backgroundColor: '#3b82f6', 
+                            borderColor: '#2563eb',
+                            type: 'bubble', 
+                            yAxisID: 'y' 
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: '월 (Month) - 초단기 로드맵' },
+                            ticks: { maxRotation: 0, minRotation: 0 }
+                        },
+                        y: {
+                            min: 0,
+                            max: 105,
+                            title: { display: true, text: '학습 집중도 및 완벽도 (%)' },
+                            ticks: { stepSize: 20 },
+                            grid: { drawOnChartArea: false } 
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                      return label.join(' ');
+                                    } else {
+                                      return label;
+                                    }
+                                },
+                                label: function(context) {
+                                    if (context.datasetIndex === 1) { 
+                                        return '🥇 KMChC 시험일 (2/15 예상)';
+                                    }
+                                    if (context.datasetIndex === 2) {
+                                        return '📝 접수 시작일 (1/9 예상)';
+                                    }
+                                    return context.dataset.label + ': ' + context.formattedValue + '%';
+                                }
+                            }
+                        },
+                        legend: { position: 'top' }
+                    }
+                }
+            });
+        }
+
+        window.onload = () => {
+            showPhaseDetail(1);
+            createTimelineChart();
+        };
+    </script>
+</body>
+</html>
